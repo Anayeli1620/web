@@ -1,0 +1,11 @@
+<div class="card" style="width: 300rem;">
+    <div class="card-body">
+        <h5 class="card-title">Cliente: <?= $clientes->id  ?></h5>
+        <p class="card-text">Teléfono: <?= $clientes->telefono ?></p>
+        <p class="card-text">email: <?= $clientes->email ?></p>
+
+
+        <!-- Imagen del cliente -->
+        <img src="<?= PUBLIC_PATH ?>img/clientes/<?= $clientes->id ?>.jpg" width="250px">
+    </div>
+</div>

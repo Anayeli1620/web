@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FilePond Demo</title>
+
+        <link href="./filepond.css" rel="stylesheet" />
+        <script src="./filepond.js"></script>
+
+    </head>
+    <body>
+    <label>Filepond </label>
+        <input type="file" filepond="1" />
+
+
+
+
+        <script>
+
+
+            // Get a reference to the file input element
+            const inputElement = document.querySelector('input[filepond]');
+
+            // Create the FilePond instance
+            const pond = FilePond.create(inputElement, {
+                allowMultiple: false,
+                storeAsFile: true,
+            });
+
+            // Easy console access for testing purposes
+            window.pond = pond;
+        </script>
+    </body>
+</html>

@@ -1,0 +1,51 @@
+<?php
+View::template("plantilla");
+?>
+
+<h1>Productos Log</h1>
+
+<a href="/Kumbiaphp/productos_log/registrar" class="btn btn-primary">Registrar Producto Log</a>
+
+<table class="table table-striped table-hover" id="myTable">
+    <thead>
+    <tr>
+        <th>ID Producto Log</th>
+        <th>ID Producto</th>
+        <th>Entrada</th>
+        <th>Salida</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($productos_log as $log): ?>
+        <tr>
+            <td><?= $log->id ?></td>
+            <td><a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>"><?= $log->producto_id ?></a></td>
+            <td><?= $log->entrada ?></td>
+            <td><?= $log->salida ?></td>
+            <td>
+                <a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>"</a>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
+
+<script src="/DataTables/datatables.js"></script>
+<script>
+    let table = new DataTable('#myTable');
+</script>
+
+<?= Form::open() ?>
+
+<!-- Botón Regresar -->
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

@@ -1,0 +1,59 @@
+<?php
+View::template("plantilla");
+?>
+
+<h1>Clientes</h1>
+<a href="/Kumbiaphp/clientes/registrar" class="btn btn-primary">Registrar Clientes</a>
+
+ <table class="table table-striped table-hover" id="myTable">
+
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>razon_social</th>
+        <th>nombre</th>
+        <th>email</th>
+        <th>telefono</th>
+        <th>password</th>
+        <th>credito</th>
+        <th>adeudo</th>
+        <th>activo</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($clientes as $p): ?>
+        <tr>
+            <td><?= $p->id ?></td>
+            <td><?= $p->razon_social ?></td>
+            <td><a href="/Kumbiaphp/clientes/show/<?= $p->id ?>"><?= $p->nombre ?></a></td>
+            <td><?= $p->email ?></td>
+            <td><?= $p->telefono ?></td>
+            <td><?= $p->password ?></td>
+            <td><?= $p->credito ?></td>
+            <td><?= $p->adeudo ?></td>
+            <td><?= $p->activo ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+
+    <link rel="stylesheet" href="/DataTables/datatables.css" />
+
+    <script src="/DataTables/datatables.js"></script>
+    <script>
+        let table = new DataTable('#myTable', {
+            // config options...
+        });
+    </script>
+</table>
+
+</>
+
+    <?= Form::open() ?>
+    <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+    <?= Form::close() ?>
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

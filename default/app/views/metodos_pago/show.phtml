@@ -1,0 +1,149 @@
+<h1 class="text-center">Métodos de Pago</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Tarjeta del método de pago -->
+        <div class="col-md-6">
+            <div class="card" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title">Método de Pago: <?= $metodos_pago->nombre ?></h5>
+                    <p class="card-text"><strong>ID:</strong> <?= $metodos_pago->id ?></p>
+                    <img src="<?= PUBLIC_PATH ?>img/metodos_pago/<?= $metodos_pago->id ?>.jpg" width="250px" alt="Método de Pago">
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de ventas asociadas al método de pago -->
+        <div class="col-md-6">
+            <h3>Ventas Asociadas</h3>
+            <table class="table table-sm table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th>fecha</th>
+                    <th>vendedor</th>
+                    <th>total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php if (!empty($ventas)): ?>
+                    <?php foreach ($ventas as $venta): ?>
+                        <tr>
+                            <td><?= $venta->fecha ?></td>
+                            <td><?= $venta->empleados_id ?></td>
+                            <td>$<?= number_format((float)$venta->total, 2) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="3" class="text-center">No hay ventas registradas para este método de pago.</td>
+                    </tr>
+                <?php endif; ?>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen de ventas -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <h5 class="text-center">Resumen de Ventas</h5>
+                <table class="table table-bordered text-center">
+                    <thead>
+                    <tr>
+                        <th>Total de Ingresos</th>
+                        <th>Total de Ventas</th>
+                        <th>Productos Más Vendidos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>$<?= number_format($total_ingresos, 2) ?></td>
+                        <td><?= is_array($ventas) ? count($ventas) : 0 ?></td> <!-- Verifica si ventas es un array -->
+                        <td><?= is_array($productos_mas_vendidos) ? count($productos_mas_vendidos) : 0 ?></td> <!-- Verifica si productos_mas_vendidos es un array -->
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Gráficas de productos más vendidos y ventas mensuales -->
+    <?php if (!empty($ventas)): ?>
+        <h3>Gráficas</h3>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="text-center">Productos Más Vendidos</h5>
+                    <canvas id="productosMasVendidosChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="text-center">Ventas Mensuales</h5>
+                    <canvas id="ventasMensualesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('productosMasVendidosChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,
+            datasets: [{
+                label: 'Ventas en $',
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '$' + value.toLocaleString(); }
+                    }
+                }
+            }
+        }
+    });
+</script>
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

@@ -1,0 +1,12 @@
+
+<div class="card" style="width: 300rem;">
+        <div class="card-body">
+            <h5 class="card-title">Pago ID: <?= $pago->id ?></h5>
+            <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?></p>
+            <p class="card-text"><strong>Metodo de Pago:</strong> <?= $pago->metodo_pago_id->metodos_pago->nombre ?></p>
+            <p class="card-text"><strong>Total:</strong> $<?= number_format($total_ingresos, 2) ?></p>
+            <img src="<?= PUBLIC_PATH ?>img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
+
+        </div>
+
+</div>

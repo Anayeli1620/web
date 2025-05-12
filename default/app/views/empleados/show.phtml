@@ -1,0 +1,176 @@
+
+
+
+<h1 class="text-center">Detalles del empleado</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Tarjetas de empleados en la parte izquierda -->
+        <div class="col-md-6">
+            <?= View::partial("empleados/card", null, ["empleados" => $empleados]) ?>
+        </div>
+
+        <!-- Detalle de la venta en la parte superior derecha -->
+        <div class="col-md-6 d-flex flex-column align-items-end">
+            <strong>VENTAS DEL EMPLEADO</strong>
+            <table class="table table-bordered text-center">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Cant</th>
+                    <th>Precio</th>
+                    <th>Importar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                if (!empty($empleados->getVentas())):
+                    foreach ($empleados->getVentas() as $venta):
+
+                        // Obtienes primero el detalle de la venta
+                        $detalleVenta = (new DetallesVentas())->find_first("ventas_id = {$venta->id}");
+
+                        if ($detalleVenta) {
+                            // Ahora sí obtienes el producto
+                            $producto = (new Productos())->find_first($detalleVenta->productos_id);
+                            $cantidad = $detalleVenta->cantidad;
+                            $precio = $producto ? number_format($producto->precio, 2) : '0.00';
+
+                            // Obtener descripción desde categoría claramente
+                            if ($producto && $producto->categorias_id) {
+                                $categoria = (new Categorias())->find_first($producto->categorias_id);
+                            }
+                        } else {
+                            $cantidad = '0';
+                            $precio = '0.00';
+                        }
+
+                        $importar = isset($venta->importar) && $venta->importar ? 'Sí' : 'No';
+                        ?>
+                        <tr>
+                            <td><?= ($cantidad) ?></td>
+                            <td>$<?= ($precio) ?></td>
+                            <td><?= ($importar) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="text-center">No hay ventas registradas para este empleado.</td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+
+    <br> <!-- Espacio entre filas -->
+
+    <!-- Dashboard de Ventas -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <h5 class="text-center">Información de ventas del empleado</h5>
+                <table class="table table-bordered text-center">
+                    <thead>
+                    <tr>
+                        <th>Total de unidades vendidas</th>
+                        <th>Total de ingresos generados</th>
+                        <th>Última fecha de venta</th>
+                        <th>Número de veces vendido</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><?= $total_unidades ?></td>
+                        <td>$<?= number_format($total_ingresos, 2) ?></td>
+                        <td><?= $ultima_fecha ?></td>
+                        <td><?= count($productos_mas_vendidos) ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Movimientos de Stock -->
+        <div class="col-md-4">
+            <div class="card">
+                <h5 class="text-center">Movimientos de Stock</h5>
+                <p><strong>Fecha de última actualización:</strong> <?= date("Y-m-d") ?></p>
+                <p><strong>Alertas de Stock:</strong></p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: <?= (count($productos_mas_vendidos) > 0) ? 70 : 10 ?>%;">
+                        <?= (count($productos_mas_vendidos) > 0) ? '70%' : '10%' ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Producto en Ventas Totales</h5>
+                <canvas id="ventasTotalesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <br> <!-- Espacio entre filas -->
+
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfica de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('ventasTotalesChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db']
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Gráfica de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,
+            datasets: [{
+                label: 'Ventas en $',
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+
+
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>

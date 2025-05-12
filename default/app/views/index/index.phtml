@@ -1,0 +1,59 @@
+<?= View::content() ?>
+
+<br>
+<h1>$<?= $venta->total ?> == $<?= $venta->getCliente()->credito ?></h1>
+<h1><?= $venta->venta_valida(); ?></h1>
+<br>
+
+<h1> <?= count($venta->getItems()); ?> </h1>
+<br>
+<h1> $<?= $venta->total ?> == $<?= $venta->getCliente()->credito ?> </h1>
+<h1> <?= $venta->venta_valida(); ?> </h1>
+<br>
+
+<form method="POST" action=/var/www/html/Kumbiaphp/default/public/storage/$modelo" enctype="multipart/form-data">
+    <input type="file"
+           id="file_input"
+           class="filepond"
+           name="fileup"
+           multiple
+           data-allow-reorder="true"
+           data-max-file-size="3MB"
+           data-max-files="3">
+    <br>
+    <button type="submit" class="btn btn-primary mt-3">subir</button>
+</form>
+
+
+<script type="text/javascript">
+    FilePond.registerPlugin(
+        FilePondPluginImagePreview
+    );
+
+    // 3. Configurar FilePond
+    const pond = FilePond.create(document.querySelector('#file_input'), {
+        allowMultiple: false,
+        instantUpload: true,
+        imagePreviewHeight: 170,
+        server: {
+            process: {
+                url: '/Kumbiaphp/default/public/index/storage/productos/4',
+                method: 'POST',
+                // Agrega estos parámetros importantes
+                timeout: 7000,
+                ondata: (formData) => {
+                    // Agrega campo adicional si lo necesitas
+                    formData.append('campo_extra', 'valor');
+                    return formData;
+                },
+                onload: (response) => {
+                    console.log('Respuesta completa:', response);
+                    return response; // Asegúrate de devolver la respuesta
+                },
+                onerror: (error) => {
+                    console.error('Error detallado:', error);
+                }
+            }
+        }
+    });
+</script>

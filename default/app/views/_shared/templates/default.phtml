@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset=<?= APP_CHARSET ?> >
+  <title>Kumbiaphp Framework</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?php Tag::css('kumbiaphp') ?>
+  <?= Html::includeCss() ?>
+     <link href="/Kumbiaphp/libs/bootstrap5/bootstrap.min.css" rel="stylesheet">
+
+
+
+
+     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet"/>
+     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+     <!-- add before </body> -->
+     <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
+
+
+</head>
+<body>
+<div class="container">
+  <header class="row">
+      <div class="col-8">
+          <?= Html::link('', Html::img('kumbiaphp.svg', 'Kumbiaphp logo'), 'title="Inicio"') ?>
+      </div>
+      <div class="col-4 text-right">
+          App: <strong><?= basename(dirname(APP_PATH)) ?></strong> (<?= PRODUCTION ? 'Production' : 'Development' ?>)
+
+      </div>
+  </header>
+  <?php View::content() ?>
+  <?php View::partial('kumbiaphp/footer') ?>
+</div>
+</body>
+</html>

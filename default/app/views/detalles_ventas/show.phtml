@@ -1,0 +1,131 @@
+<h1 class="text-center">Detalles de la Venta</h1>
+<div class="container">
+
+        <div class="row">
+            <div class="col-md-6">
+                <?= View::partial("detalles_ventas/card", ["detalles_ventas" => $detalles_ventas]) ?>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <h5 class="text-center">Resumen de la Venta</h5>
+                <table class="table table-bordered text-center">
+                    <thead>
+                    <tr>
+                        <th>Total de Unidades Vendidas</th>
+                        <th>Total de Ingresos Generados</th>
+                        <th>Última Fecha de Venta</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><?= $total_unidades ?></td>
+                        <td>$<?= number_format($total_ingresos, 2) ?></td>
+                        <td><?= $ultima_fecha ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>Productos Vendidos</h3>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>ventas_id</th>
+                    <th>productos_id</th>
+
+                    <th>subtotal</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <?php if (!empty($detalles_ventas)): ?>
+                    <?php foreach ($detalles_ventas as $detalle): ?>
+                        <tr>
+                            <td><?= $detalle->ventas_id ?></td>
+                            <td><?= $detalle->getProducto()->nombre ?></td>
+                            <td><?= $detalle->cantidad ?></td>
+                            <td>$<?= number_format((float)$detalle->subtotal, 2) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" class="text-center">No se encontraron productos para esta venta.</td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Producto en Ventas Totales</h5>
+                <canvas id="ventasTotalesChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('ventasTotalesChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']
+            }]
+        },
+        options: { responsive: true }
+    });
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,
+            datasets: [{
+                label: 'Ventas en $',
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

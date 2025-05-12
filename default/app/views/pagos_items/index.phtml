@@ -1,0 +1,52 @@
+<?php
+View::template("plantilla");
+?>
+
+<h1>Pagos Items</h1>
+
+<a href="/Kumbiaphp/pagos_items/registrar" class="btn btn-primary">Registrar Nuevo Pago</a>
+
+<table class="table table-striped table-hover" id="myTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Pago ID</th>
+        <th>Venta ID</th>
+        <th>Antes</th>
+        <th>Monto Pagado</th>
+        <th>Adeudo</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($pagos_items as $item): ?>
+        <tr>
+            <td><a href="http://localhost/Kumbiaphp/pagos_items/show/<?= $item->id ?>"><?= $item->id ?></a></td>
+
+            <td><?= $item->id ?></td>
+            <td><?= $item->pago_id ?></td>
+            <td><?= $item->venta_id ?></td>
+            <td>$<?= number_format($item->antes, 2) ?></td>
+            <td>$<?= number_format($item->monto_pagado, 2) ?></td>
+            <td>$<?= number_format($item->adeudo, 2) ?></td>
+            <td><?= $item->created_at ?></td>
+
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
+
+<script src="/DataTables/datatables.js"></script>
+<script>
+    let table = new DataTable('#myTable');
+</script>
+
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

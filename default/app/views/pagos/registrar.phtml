@@ -1,0 +1,34 @@
+<?= View::content()?>
+
+<?= Form::open() ?>
+
+<label>ID</label>
+<?= Form::number('pagos.id',["class"=> "form-control", "title"=>"id del pago"]) ?>
+<label>cliente_id</label>
+<?= Form::number('pagos.cliente_id',["class"=> "form-control", "title"=>"id del pago"]) ?>
+<label>matodo_pago_id</label>
+<?= Form::number('pagos.matodo_pago_id',["class"=> "form-control", "title"=>"id del pago"]) ?>
+<label>cometario</label>
+<?= Form::text('pagos.cometario',["class"=> "form-control", "title"=>"id del pago"]) ?>
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

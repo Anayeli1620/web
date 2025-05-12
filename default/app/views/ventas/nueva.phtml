@@ -1,0 +1,73 @@
+
+
+
+<?php View::template("plantilla"); ?>
+
+<table class="table table-striped table-hover" >
+
+
+<h1 class="text-center text-primary my-4">Ventas</h1>
+<h2 class="text-center text-secondary"><?= $clientes->razon_social ?></h2>
+
+<?php if ($clientes == null): ?>
+    <div class="alert alert-light text-center" style="background-color: #f8bbd0; color: #c2185b;">
+        <?= View::partial("ventas/seleccionar_cliente") ?>
+    </div>
+<?php endif; ?>
+
+
+<?php if ($venta != null && $venta->getItems()): ?>
+    <?= View::partial("ventas/tablas", ['venta' => $venta]) ?>
+<?php else: ?>
+    <div class="alert alert-info text-center">No hay productos en esta venta.</div>
+<?php endif; ?>
+
+
+<!-- Formulario y tabla -->
+<div class="row">
+    <!-- Tabla de productos seleccionados -->
+    <div class="col-md-8">
+        <?php if ($venta != null): ?>
+            <h4>Productos en la Venta</h4>
+            <table id="myTable" class="table table-striped table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Cant</th>
+                    <th>Descripción</th>
+                    <th>Unitario</th>
+                    <th>Importe</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($venta->getItems() as $i): ?>
+                    <tr>
+                        <td><?= $i->cantidad ?></td>
+                        <td><?= $i->descripcion ?></td>
+                        <td><?= $i->unitario ?></td>
+                        <td><?= $i->importe ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <div class="alert alert-info text-center">No hay productos en esta venta.</div>
+        <?php endif; ?>
+        <script>
+            let table = new DataTable('#myTable', {
+                // config options...
+            });
+        </script>
+    </div>
+    <script>
+        // Estilo para los encabezados
+        $('#myTable thead').css({
+            'background-color': '#e1bee7',  // color de fondo de encabezados rosita
+            'color': '#880e4f'               // color del texto en encabezados rosado intenso
+        });
+    </script>
+
+</div>
+
+</table>
+
+

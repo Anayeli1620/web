@@ -1,0 +1,33 @@
+<?= View::content()?>
+
+<?= Form::open() ?>
+
+    <label>ID</label>
+    <?= Form::number('productos.id',["class"=> "form-control", "title"=>"nombre del producto"]) ?>
+    <label>Categorias_id</label>
+    <?= Form::number('productos.categorias_id',["class"=> "form-control", "title"=>"nombre del producto"]) ?>
+    <label>Nombre</label>
+    <?= Form::text('productos.nombre',["class"=> "form-control", "title"=>"nombre del producto"]) ?>
+    <label>Precio</label>
+    <?= Form::number('productos.precio',["class"=> "form-control", "title"=>"nombre del producto"]) ?>
+    <label>Stock</label>
+    <?= Form::number('productos.stock',["class"=> "form-control", "title"=>"nombre del producto"]) ?>
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

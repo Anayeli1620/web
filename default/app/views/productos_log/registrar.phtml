@@ -1,0 +1,38 @@
+<?= View::content()?>
+
+<?= Form::open() ?>
+
+<label>Producto ID</label>
+<?= Form::number('productos_log.producto_id', ["class" => "form-control", "title" => "ID del Producto"]) ?>
+
+<label>Entrada</label>
+<?= Form::number('productos_log.entrada', ["class" => "form-control", "title" => "Cantidad de Entrada"]) ?>
+
+<label>Salida</label>
+<?= Form::number('productos_log.salida', ["class" => "form-control", "title" => "Cantidad de Salida"]) ?>
+
+<label>Venta ID</label>
+<?= Form::number('productos_log.venta_id', ["class" => "form-control", "title" => "ID de Venta"]) ?>
+
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_cancelar('Cancelar', ['onclick' => "window.location.href='productos/index'"]) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

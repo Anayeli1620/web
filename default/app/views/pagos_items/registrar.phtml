@@ -1,0 +1,37 @@
+<?= View::content()?>
+
+<?= Form::open() ?>
+
+<h1>Registrar Pago Item</h1>
+
+
+<label>Pago ID</label>
+<?= Form::number('pagos_items.pago_id', ["class" => "form-control", "title" => "Pago ID"]) ?>
+<label>Venta ID</label>
+<?= Form::number('pagos_items.venta_id', ["class" => "form-control", "title" => "Venta ID"]) ?>
+<label>Antes</label>
+<?= Form::number('pagos_items.antes', ["class" => "form-control", "title" => "Antes", "min" => 0]) ?>
+<label>Monto Pagado</label>
+<?= Form::number('pagos_items.monto_pagado', ["class" => "form-control", "title" => "Monto Pagado", "min" => 0]) ?>
+<label>Adeudo</label>
+<?= Form::number('pagos_items.adeudo', ["class" => "form-control", "title" => "Adeudo", "min" => 0]) ?>
+
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

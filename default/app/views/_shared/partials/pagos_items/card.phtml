@@ -1,0 +1,22 @@
+<!-- Card de Pago Item -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header text-center">
+            <h5>Pago Item: [<?= $pago_item->id ?>]</h5>
+        </div>
+        <div class="card-body">
+            <!-- Información del Pago -->
+            <h5 class="card-title">Pago ID: <?= $pago_item->pago_id ?></h5>
+            <h6 class="card-subtitle mb-2 text-muted">Venta ID: <?= $pago_item->venta_id ?></h6>
+
+            <!-- Relación con el Producto y la Venta -->
+            <div class="mt-3">
+                <p><strong>Producto Asociado:</strong> <?= $venta->producto->nombre ?></p>
+                <p><strong>Descripción del Producto:</strong> <?= $venta->producto->descripcion ?></p>
+            </div>
+
+            <!-- Imagen del Producto -->
+            <img src="<?= PUBLIC_PATH ?>img/pagos_items/<?= $pago_item->id ?>.jpg" width="250px" >
+        </div>
+    </div>
+</div>

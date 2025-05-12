@@ -1,0 +1,125 @@
+<?php View::template("plantilla"); ?>
+
+<h1>Detalles del Pago: <?= $pago->id ?> </h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Información del pago -->
+        <div class="col-md-6">
+            <div class="card" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title">Pago ID: <?= $pago->id ?></h5>
+                    <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?></p>
+                    <p class="card-text"><strong>Método de Pago:</strong> <?= $pago->metodo_pago_id->metodos_pago->nombre ?></p>
+                    <p class="card-text"><strong>Total:</strong> $<?= number_format((float)$total_ingresos, 2) ?></p>
+                    <img src="<?= PUBLIC_PATH ?>img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
+
+                </div>
+            </div>
+        </div>
+        <!-- Resumen de ventas -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <h5 class="text-center">Resumen de Ventas</h5>
+                    <table class="table table-bordered text-center">
+                        <thead>
+                        <tr>
+                            <th>Total de Ingresos</th>
+                            <th>Total de Ventas</th>
+                            <th>Productos Más Vendidos</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>$<?= number_format($total_ingresos, 2) ?></td>
+                            <!-- Asegúrate de que $ventas esté inicializado -->
+                            <td><?= count($ventas) ?></td>
+                            <td><?= count($productos_mas_vendidos) ?></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Gráficas -->
+    <h3>Gráficas</h3>
+    <div class="row mt-4">
+        <!-- Gráfico de Productos Más Vendidos -->
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Productos Más Vendidos</h5>
+                <canvas id="productosMasVendidosChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfico de Ventas Mensuales -->
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('productosMasVendidosChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,  // Etiquetas de productos
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,  // Datos de cantidades vendidas
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,  // Meses
+            datasets: [{
+                label: 'Ventas en $',  // Etiqueta para el gráfico
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,  // Ventas por mes
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',  // Color de las barras
+                borderColor: 'rgba(52, 152, 219, 1)',  // Color del borde de las barras
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+
+    <?= Form::open() ?>
+
+
+
+    <!-- Botón Regresar -->
+    <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+    <?= Form::close() ?>
+
+    <!-- Script para limpiar formulario -->
+    <script>
+        function limpiarFormulario() {
+            document.querySelector('form').reset();
+        }
+    </script>

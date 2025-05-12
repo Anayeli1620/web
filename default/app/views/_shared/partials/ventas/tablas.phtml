@@ -1,0 +1,34 @@
+
+<!-- Tabla de productos seleccionados -->
+<div class="row">
+
+    <!-- Formulario de selección de producto -->
+    <div class="col-md-4 mb-3">
+        <h4>Seleccionar Producto</h4>
+        <form method="post" class="form-inline">
+            <div class="form-group">
+                <label for="producto_id" class="mr-2">Producto</label>
+                <select name="producto_id" class="form-control mr-2">
+                    <option value="1">Producto 1</option>
+                    <option value="8">Producto 8</option>
+                    <option value="99">Producto 99</option>
+                </select>
+            </div>
+            <button class="btn btn-success" type="submit">Seleccionar</button>
+        </form>
+    </div>
+</div>
+<script>
+
+    // Aplica el estilo rosita a la tabla después de la inicialización
+    $('#myTable').css({
+        'background-color': '#f8bbd0',  // color de fondo rosita
+        'color': '#c2185b'               // color del texto rosado oscuro
+    });
+
+    // Estilo para los encabezados
+    $('#myTable thead').css({
+        'background-color': '#e1bee7',  // color de fondo de encabezados rosita
+        'color': '#880e4f'               // color del texto en encabezados rosado intenso
+    });
+</script>

@@ -1,0 +1,119 @@
+<?php View::template("plantilla"); ?>
+
+
+<h1>Producto</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Tarjeta con detalles del producto en la parte izquierda -->
+        <div class="col-md-6">
+            <div class="card" style="width: 300rem;">
+                <div class="card-body">
+                    <h5 class="card-title"><?= $productos->nombre ?></h5>
+                    <p class="card-text"><strong>Precio:</strong> $<?= number_format($productos->precio, 2) ?></p>
+                    <p class="card-text"><strong>Stock:</strong> <?= $productos->stock ?></p>
+                    <p class="card-text"><strong>Categoría:</strong> <?= $categoria ? $categoria->nombre : 'Sin categoría' ?></p>
+                    <img src="<?= PUBLIC_PATH ?>img/productos/<?= $productos->id ?>.jpg" width="250px" alt="Productos">
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de ventas en la parte derecha -->
+        <div class="col-md-6">
+            <h3>Ventas Asociadas</h3>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Empleado</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($ventas as $venta): ?>
+                    <tr>
+                        <td><?= $venta->id ?></td>
+                        <td><?= $venta->fecha ?></td>
+                        <td><?= $venta->getCliente()->nombre ?></td>
+                        <td><?= $venta->getEmpleado()->nombre ?></td>
+
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <!-- Gráficas de productos más vendidos y ventas mensuales -->
+    <h3>Gráficas</h3>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Productos Más Vendidos</h5>
+                <canvas id="productosMasVendidosChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('productosMasVendidosChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,  // Etiquetas de productos
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,  // Datos de cantidades vendidas
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']  // Colores del gráfico
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,  // Meses
+            datasets: [{
+                label: 'Ventas en $',  // Etiqueta para el gráfico
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,  // Ventas por mes
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',  // Color de las barras
+                borderColor: 'rgba(52, 152, 219, 1)',  // Color del borde de las barras
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

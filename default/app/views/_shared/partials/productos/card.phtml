@@ -1,0 +1,15 @@
+<div class="card" style="width: 300rem;">
+    <div class="card-body">
+        <h5 class="card-title">Producto</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Precio: $<?= number_format($productos->precio, 2) ?></h6>
+        <p class="card-text">Stock: <?= $productos->stock ?></p>
+        <p class="card-text">Categoría: <?= $categoria ? $categoria->nombre : 'Sin categoría' ?></p>
+
+
+        <!-- Imagen del producto -->
+        <img src="<?= PUBLIC_PATH ?>img/productos/<?= $productos->id ?>.jpg" width="250px" alt="Imagen de Producto">
+    </div>
+</div>
+
+
+

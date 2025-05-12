@@ -1,0 +1,35 @@
+<?= View::content() ?>
+
+<?= Form::open() ?>
+<label>id</label>
+<?= Form::number('detalles_ventas.id',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<label>Nombre</label>
+<?= Form::text('empleados.nombre',["class"=> "form-control", "title"=>"nombre del empleado"]) ?>
+<label>email</label>
+<?= Form::text('empleados.email',["class"=> "form-control", "title"=>"nombre del empleado"]) ?>
+<label>telefono</label>
+<?= Form::number('empleados.telefono',["class"=> "form-control", "title"=>"nombre del empleado"]) ?>
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>
+

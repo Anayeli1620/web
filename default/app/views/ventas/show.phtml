@@ -1,0 +1,177 @@
+<h1 class="text-center">Ventas</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Tarjetas de venta en la parte izquierda -->
+        <div class="col-md-6">
+            <?= View::partial("ventas/card", null, ["ventas" => $ventas, "total_unidades" => $total_unidades, "total_ingresos" => $total_ingresos, "ultima_fecha" => $ultima_fecha]) ?>
+
+        </div>
+
+        <!-- Detalles de la venta en la parte derecha -->
+        <div class="col-md-6 d-flex flex-column align-items-end">
+            <strong>Detalle de la Venta</strong>
+            <table class="table table-bordered text-center">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Cant</th>
+                    <th>Precio</th>
+                    <th>Importar</th>
+                    <th>Stock Actual</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                if (!empty($detalles_ventas)):
+                    $total_ingresos = 0; // Reset total ingresos before calculation
+                    foreach ($detalles_ventas as $detalle):
+                        $producto = (new Productos())->find_first($detalle->productos_id);
+                        $cantidad = $detalle->cantidad;
+                        $precio = $producto ? number_format($producto->precio, 2) : '0.00';
+                        $importar = isset($detalle->importar) && $detalle->importar ? 'Sí' : 'No';
+
+
+                        // Calculate the total for this sale
+                        $total_ingresos += ($precio * $cantidad);
+                        ?>
+                        <tr>
+                            <td><?= $cantidad ?></td>
+                            <td>$<?= $precio ?></td>
+                            <td><?= $importar ?></td>
+                            <td><?= $producto ? $producto->stock : 'N/D' ?></td>
+
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="text-center">No hay productos vendidos para esta venta.</td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <br> <!-- Espacio entre filas -->
+
+    <!-- Resumen de la venta -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <h5 class="text-center">Resumen de la Venta</h5>
+                <table class="table table-bordered text-center">
+                    <thead>
+                    <tr>
+                        <th>Total de Unidades Vendidas</th>
+                        <th>Total de Ingresos Generados</th>
+                        <th>Última Fecha de Venta</th>
+                        <th>Número de Veces Vendido</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><?= $total_unidades ?></td>
+                        <td>$<?= number_format($total_ingresos, 2) ?></td>
+                        <td><?= $ultima_fecha ?></td>
+                        <td><?= count($detalles_ventas) ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Movimientos de Stock -->
+        <div class="col-md-4">
+            <div class="card">
+                <h5 class="text-center">Movimientos de Stock</h5>
+                <p><strong>Fecha de última actualización:</strong> <?= date("Y-m-d") ?></p>
+                <p><strong>Alertas de Stock:</strong></p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: <?= (count($detalles_ventas) > 0) ? 70 : 10 ?>%;">
+                        <?= (count($detalles_ventas) > 0) ? '70%' : '10%' ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Producto en Ventas Totales</h5>
+                <canvas id="ventasTotalesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <br> <!-- Espacio entre filas -->
+
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Producto en Ventas Totales (Tipo Dona)
+    var ctx1 = document.getElementById('ventasTotalesChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,
+            datasets: [{
+                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,
+                backgroundColor: ['#1abc9c', '#f39c12', '#3498db']
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,
+            datasets: [{
+                label: 'Ventas en $',
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+
+<?= Form::open() ?>
+
+
+
+<!-- Botón Regresar -->
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

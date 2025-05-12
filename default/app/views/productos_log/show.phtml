@@ -1,0 +1,138 @@
+<h1>Producto Log: [<?= $producto_log->id ?>] - Producto ID: <?= $producto_log->producto_id ?></h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Producto: <?= $producto->nombre ?></h5>
+                    <p class="card-text">Descripción: <?= $producto->descripcion ?></p>
+                    <p class="card-text">Entrada: <?= $producto_log->entrada ?></p>
+                    <p class="card-text">Salida: <?= $producto_log->salida ?></p>
+                    <img src="<?= PUBLIC_PATH ?>img/productos_log/<?= $producto_log->id ?>.jpg" width="250px" >
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- Mostrar un resumen de entradas y salidas -->
+            <h3>Totales</h3>
+            <table class="table table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Valor</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><strong>Entrada Total:</strong></td>
+                    <td><?= $producto_log->entrada ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Salida Total:</strong></td>
+                    <td><?= $producto_log->salida ?></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Gráficas -->
+    <h3>Gráficas</h3>
+    <div class="row mt-4">
+        <!-- Gráfico de Entradas vs Salidas -->
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Entradas vs Salidas</h5>
+                <canvas id="entradasSalidasChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfico de Ventas Mensuales (si tienes los datos) -->
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Ventas Mensuales</h5>
+                <canvas id="ventasMensualesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Entradas vs Salidas
+    var ctx1 = document.getElementById('entradasSalidasChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Entrada', 'Salida'], // Etiquetas para las barras
+            datasets: [{
+                label: 'Cantidad',
+                data: [<?= $producto_log->entrada ?>, <?= $producto_log->salida ?>], // Datos de entradas y salidas
+                backgroundColor: ['#28a745', '#dc3545'], // Colores para las barras (verde para entrada, rojo para salida)
+                borderColor: ['#28a745', '#dc3545'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de Ventas Mensuales (si tienes los datos)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    var ventasMensuales = <?= json_encode($ventas_por_mes) ?>; // Pasamos los datos de ventas por mes desde el controlador
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(ventasMensuales),  // Meses
+            datasets: [{
+                label: 'Ventas en $', // Etiqueta para el gráfico
+                data: Object.values(ventasMensuales),  // Ventas por mes
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',  // Color de las barras
+                borderColor: 'rgba(52, 152, 219, 1)',  // Color del borde de las barras
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '$' + value.toLocaleString(); }  // Formato de moneda
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<?= Form::open() ?>
+
+
+
+<!-- Botón Regresar -->
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>
+
+
+

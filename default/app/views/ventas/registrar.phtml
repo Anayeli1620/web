@@ -1,0 +1,52 @@
+<?= View::content() ?>
+
+<?= Form::open() ?>
+
+<label>id</label>
+<?= Form::number('ventas.id',["class"=> "form-control", "title"=>"id del producto"]) ?>
+<label>usuario_id</label>
+<?= Form::number('ventas.usuario_id',["class"=> "form-control", "title"=>"usuario_id del producto"]) ?>
+<label>Clientes_id</label>
+<?= Form::number('ventas.clientes_id',["class"=> "form-control", "title"=>"clientes_id del producto"]) ?>
+<label>Empleados_id</label>
+<?= Form::number('ventas.empleados_id',["class"=> "form-control", "title"=>"empleados_id del producto"]) ?>
+<label>Metodos_pago_id</label>
+<?= Form::number('ventas.metodos_pago_id',["class"=> "form-control", "title"=>"metodos_pago_id del producto"]) ?>
+<label>Fecha</label>
+<?= Form::date('ventas.fecha', ["class" => "form-control"]) ?>
+<label>total</label>
+<?= Form::number('ventas.total',["class"=> "form-control", "title"=>"total del producto"]) ?>
+<label>por_pagar</label>
+<?= Form::number('ventas.por_pagar',["class"=> "form-control", "title"=>"por_pagar del producto"]) ?>
+<label>Comentario</label>
+<?= Form::text('ventas.comentario',["class"=> "form-control", "title"=>"comentario del producto"]) ?>
+
+
+
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif">
+
+
+
+<!-- Botón Guardar -->
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>
+
+
+

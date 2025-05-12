@@ -1,0 +1,56 @@
+<?php header('HTTP/1.1 401 Unauthorized') ?>
+<?php echo View::content() ?>
+
+<!-- Contenedor principal centrado con color de fondo -->
+<div style="text-align: center; padding: 40px; background-image: url('/Kumbiaphp/default/public/img/ATARDECER/atardecerb.jpg'); background-size: cover; background-position: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-family: 'Arial', sans-serif;">
+    <!-- Foto de perfil centrada -->
+    <div style="margin-bottom: 30px;">
+        <img src="\Kumbiaphp\default\public\img\PERFIL\uñiss.jpg" alt="Foto de Perfil" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #FF69B4; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);">
+    </div>
+
+    <!-- Título de bienvenida -->
+    <h1 style="color: #fff; font-size: 3em; font-weight: bold; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); margin-bottom: 20px;">UÑITAS FASHION</h1>
+
+    <!-- Formulario de login con fondo blanco -->
+    <form method="post" style="width: 100%; max-width: 400px; background-color: rgba(255, 255, 255, 0.8); padding: 30px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);">
+        <!-- Título mejorado de los datos -->
+        <h2 style="color: #2c3e50; font-size: 1.8em; font-weight: 600; margin-bottom: 30px; text-align: center; border-bottom: 2px solid #FF69B4; padding-bottom: 10px; display: inline-block;">
+            Por favor, ingresa tus datos
+        </h2>
+
+        <div class="ui form" style="margin-top: 20px;">
+            <div class="two fields" style="margin-bottom: 20px;">
+                <div class="field">
+                    <label style="color: #7f8c8d; font-size: 1.1em;">Email</label>
+                    <input placeholder="email" type="email" name="login[email]" value="anayelirodriguez104@gmail.com" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; box-sizing: border-box; transition: border-color 0.3s;">
+                </div>
+                <div class="field">
+                    <label style="color: #7f8c8d; font-size: 1.1em;">Password</label>
+                    <input placeholder="Password" type="password" name="login[password]" value="123456789" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em; box-sizing: border-box; transition: border-color 0.3s;">
+                </div>
+            </div>
+
+            <!-- Botón de ingreso con transición de color -->
+            <button class="ui submit button" type="submit" style="background-color: #FF69B4; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: background-color 0.3s ease-in-out;">
+                Entrar
+            </button>
+        </div>
+    </form>
+
+    <!-- Pie de página con texto claro -->
+    <footer style="margin-top: 30px; color: #fff; font-size: 1em;">
+        <p>&copy; DISFRUTA EL CONTENIDO</p>
+    </footer>
+</div>
+
+<!-- Agregar estilo adicional para el hover del botón -->
+<style>
+    .ui.submit.button:hover {
+        background-color: #FF4C97; /* Un rosa más oscuro cuando se pasa el cursor */
+    }
+
+    input:focus {
+        border-color: #FF69B4; /* Bordes rosados cuando el campo es enfocado */
+        box-shadow: 0 0 5px rgba(255, 105, 180, 0.7); /* Sombra suave en el enfoque */
+    }
+</style>

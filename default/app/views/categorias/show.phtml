@@ -1,0 +1,150 @@
+<h1>Categorías: <?= $categorias->id ?> - <?= $categorias->nombre ?></h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Tarjetas de cliente en la parte izquierda -->
+        <div class="col-md-6">
+            <?= View::partial("categorias/card", null, ["categorias" => $categorias]) ?>
+        </div>
+
+        <!-- Mostrar los totales en una tabla -->
+        <div class="col-md-6">
+            <h3>Totales</h3>
+            <table class="table table-sm table-bordered">
+
+
+                <tbody>
+                <tr>
+                    <td><strong>Total de Productos:</strong></td>
+                    <td><?= count($productos) ?></td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de productos relacionados con la categoría -->
+<table class="table table-sm table-hover">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Stock</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($productos as $producto): ?>
+        <tr>
+            <td><?= $producto->id ?></td>
+            <td><?= $producto->nombre ?></td>
+
+            <td>$<?= number_format($producto->precio, 2) ?></td>
+            <td><?= $producto->stock ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
+
+<!-- Gráficas de productos más vendidos y ventas mensuales -->
+<h3>Gráficas</h3>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <h5 class="text-center">Productos Más Vendidos</h5>
+            <canvas id="productosMasVendidosChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <h5 class="text-center">Ventas Mensuales</h5>
+            <canvas id="ventasMensualesChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Verificamos si los productos más vendidos tienen datos
+    var productos_mas_vendidos = <?= json_encode($productos_mas_vendidos) ?>;
+    if (productos_mas_vendidos && Object.keys(productos_mas_vendidos).length > 0) {
+        // Gráfico de Producto en Ventas Totales (Tipo Dona)
+        var ctx1 = document.getElementById('productosMasVendidosChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,  // Etiquetas de productos
+                datasets: [{
+                    data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,  // Datos de cantidades vendidas
+                    backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']  // Colores del gráfico
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + ' unidades';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // Si no hay productos más vendidos, mostrar un mensaje o gráfico vacío
+        console.log("No hay productos más vendidos.");
+    }
+
+    // Gráfico de Ventas Mensuales (Tipo Barras)
+    var ctx2 = document.getElementById('ventasMensualesChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,  // Meses
+            datasets: [{
+                label: 'Ventas en $',  // Etiqueta para el gráfico
+                data: <?= json_encode(array_values($ventas_por_mes)) ?>,  // Ventas por mes
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',  // Color de las barras
+                borderColor: 'rgba(52, 152, 219, 1)',  // Color del borde de las barras
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '$' + value.toLocaleString(); }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+
+    <?= Form::open() ?>
+
+
+
+    <!-- Botón Regresar -->
+    <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+    <?= Form::close() ?>
+
+    <!-- Script para limpiar formulario -->
+    <script>
+        function limpiarFormulario() {
+            document.querySelector('form').reset();
+        }
+</script>

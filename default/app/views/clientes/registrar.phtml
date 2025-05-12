@@ -1,0 +1,37 @@
+<?= View::content() ?>
+<?= Form::open() ?>
+
+<label>ID</label>
+<?= Form::number('clientes.id',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>Razon_social</label>
+<?= Form::text('clientes.razon_social',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>Nombre</label>
+<?= Form::text('clientes.nombre',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>email</label>
+<?= Form::text('clientes.email',["class"=> "form-control", "title"=>"email del cliente"]) ?>
+<label>telefono</label>
+<?= Form::number('clientes.telefono',["class"=> "form-control", "title"=>"telefono del cliente"]) ?>
+<label>Password</label>
+<?= Form::text('clientes.password',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>Credito</label>
+<?= Form::number('clientes.credito',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>Adeudo</label>
+<?= Form::number('clientes.adeudo',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+<label>Activo</label>
+<?= Form::number('clientes.activo',["class"=> "form-control", "title"=>"nombre del cliente"]) ?>
+
+<input type="file"
+       id="file_input"
+       class="filepond"
+       name="fileup"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3">
+
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'reset']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+
+

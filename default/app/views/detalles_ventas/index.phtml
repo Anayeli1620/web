@@ -1,0 +1,48 @@
+<?= View::content() ?>
+<?php
+View::template("plantilla");
+?>
+<h1>detalles_ventas</h1>
+<a href="/Kumbiaphp/detalles_ventas/registrar" class="btn btn-primary">Registrar los detalles de las ventas</a>
+    <table border="1" <table class="table table-striped table-hover" id="myTable">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>ventas_id</th>
+        <th>productos_id</th>
+        <th>descripcion</th>
+        <th>cantidad</th>
+        <th>unitario</th>
+        <th>subtotal</th>
+        <th>descuento</th>
+        <th>importe</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($detalles_ventas as $p): ?>
+        <tr>
+            <td><?= $p->id ?></td>
+            <td><a href="http://localhost:80/Kumbiaphp/detalles_ventas/show/<?= $p->id ?>"><?= $p->ventas_id ?></a>
+
+            <td><?= $p->productos_id ?></td>
+            <td><?= $p->descripcion ?></td>
+            <td><?= $p->cantidad ?></td>
+            <td><?= $p->unitario ?></td>
+            <td><?= $p->subtotal ?></td>
+            <td><?= $p->descuento ?></td>
+            <td><?= $p->importe ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+    <link rel="stylesheet" href="/DataTables/datatables.css" />
+    <script src="/DataTables/datatables.js"></script>
+    <script>
+        let table = new DataTable('#myTable', {
+            // config options...
+        });
+    </script>
+</table>
+</>
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>

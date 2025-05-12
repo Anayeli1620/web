@@ -1,0 +1,15 @@
+<div class="card" style="width: 300rem;">
+    <div class="card-body">
+        <h5 class="card-title">Venta: <?= $ventas->id ?></h5>
+        <h6 class="card-subtitle">Cliente: <?= $ventas->cliente->nombre ?></h6>
+        <p class="card-text">Método de pago: <?= $ventas->metodo->nombre ?></p>
+        <p class="card-text">total: <?= $ventas->total ?></p>
+        <p class="card-text">por_pagar: <?= $ventas->por_pagar ?></p>
+        <p class="card-text">Fecha: <?= $ventas->fecha ?></p>
+        <p class="card-text">comentario: <?= $ventas->comentario ?></p>
+
+
+        <!-- Imagen del producto más vendido o algún detalle relevante -->
+        <img src="<?= PUBLIC_PATH ?>img/ventas/<?= $ventas->id ?>.jpg" width="250px" alt="Imagen de la venta">
+    </div>
+</div>

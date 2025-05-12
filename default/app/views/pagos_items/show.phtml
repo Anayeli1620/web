@@ -1,0 +1,137 @@
+<?php View::template("plantilla"); ?>
+
+<h1>Pago Item: [<?= $pago_item->id ?>]</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Card de Pago Item -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pago ID: <?= $pago_item->pago_id ?></h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Venta ID: <?= $pago_item->venta_id ?></h6>
+
+                    <img src="<?= PUBLIC_PATH ?>img/pagos_items/<?= $pago_item->id ?>.jpg" width="250px" >
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Pago Item -->
+        <div class="col-md-6">
+            <h3>Totales del Pago</h3>
+            <table class="table table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Valor</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><strong>Antes del Pago:</strong></td>
+                    <td>$<?= number_format($pago_item->antes, 2) ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Monto Pagado:</strong></td>
+                    <td>$<?= number_format($pago_item->monto_pagado, 2) ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Adeudo Pendiente:</strong></td>
+                    <td>$<?= number_format($pago_item->adeudo, 2) ?></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Gráficas de Pagos -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Pagos vs Adeudo</h5>
+                <canvas id="pagosAdeudoChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Resumen de Pago</h5>
+                <canvas id="resumenPagoChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Pagos vs Adeudo
+    var ctx1 = document.getElementById('pagosAdeudoChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Pago', 'Adeudo'], // Etiquetas para las barras
+            datasets: [{
+                label: 'Cantidad',
+                data: [<?= $pago_item->monto_pagado ?>, <?= $pago_item->adeudo ?>], // Datos del monto pagado y adeudo
+                backgroundColor: ['#28a745', '#dc3545'], // Colores para las barras (verde para el pago, rojo para el adeudo)
+                borderColor: ['#28a745', '#dc3545'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de Resumen de Pago
+    var ctx2 = document.getElementById('resumenPagoChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Antes', 'Monto Pagado', 'Adeudo'], // Etiquetas del gráfico de dona
+            datasets: [{
+                data: [<?= $pago_item->antes ?>, <?= $pago_item->monto_pagado ?>, <?= $pago_item->adeudo ?>], // Datos de la transacción
+                backgroundColor: ['#f39c12', '#1abc9c', '#e74c3c'], // Colores para cada segmento
+                borderColor: ['#f39c12', '#1abc9c', '#e74c3c'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': $' + tooltipItem.raw.toFixed(2); // Muestra los valores con formato de moneda
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+    <?= Form::open() ?>
+
+
+
+    <!-- Botón Regresar -->
+    <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+    <?= Form::close() ?>
+
+    <!-- Script para limpiar formulario -->
+    <script>
+        function limpiarFormulario() {
+            document.querySelector('form').reset();
+        }
+    </script>

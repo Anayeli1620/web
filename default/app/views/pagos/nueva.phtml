@@ -1,0 +1,13 @@
+<h1>registrar pago</h1>
+
+<?php if ($cliente === null): ?>
+
+    <?= View::partial("ventas/seleccionar_cliente") ?>
+<?php endif; ?>
+
+
+<?php if ($cliente !== null): ?>
+
+<?= View::partial("pagos/ventas_adeudo", null, ["ventas" => $ventas, "cliente_id" =>$cliente->id]) ?>
+<?php endif; ?>
+

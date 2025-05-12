@@ -1,0 +1,60 @@
+<?php
+View::template("plantilla");
+?>
+
+<h1>Ventas</h1>
+<a href="/Kumbiaphp/ventas/registrar" class="btn btn-primary">Registrar Categoría</a>
+
+<table class="table table-striped table-hover" id="myTable">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>usuario_id</th>
+        <th>clientes_id</th>
+        <th>empleados_id</th>
+        <th>metodos_pago_id</th>
+        <th>fecha</th>
+        <th>total</th>
+        <th>por_pagar</th>
+        <th>comentario</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($Ventas as $ven): ?>
+        <tr>
+            <td><a href="http://localhost/Kumbiaphp/ventas/show/<?= $ven->id ?>"><?= $ven->id ?></a></td>
+            <td><?= $ven->usuario_id ?></td>
+            <td><?= $ven->clientes_id ?></td>
+            <td><?= $ven->empleados_id ?></td>
+            <td><?= $ven->metodos_pago_id ?></td>
+            <td><?= $ven->fecha ?></td>
+            <td><?= $ven->total ?></td>
+            <td><?= $ven->por_pagar ?></td>
+            <td><?= $ven->comentario ?></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+
+</table>
+
+<link rel="stylesheet" href="/DataTables/datatables.css" />
+<script src="/DataTables/datatables.js"></script>
+<script>
+    let table = new DataTable('#myTable', {
+        // config options...
+    });
+</script>
+
+<?= Form::open() ?>
+
+<!-- Botón Regresar -->
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+
+<?= Form::close() ?>
+
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

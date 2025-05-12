@@ -1,0 +1,43 @@
+<?= View::content() ?>
+<?= Form::open() ?>
+
+<label>id</label>
+<?= Form::number('detalles_ventas.id',["class"=> "form-control", "title"=>"id de detalles_ventas"]) ?>
+<label>ventas_id</label>
+<?= Form::number('detalles_ventas.ventas_id',["class"=> "form-control", "title"=>"ventas_id de detalles_ventas"]) ?>
+<label>productos_id</label>
+<?= Form::number('detalles_ventas.productos_id',["class"=> "form-control", "title"=>"productos_id de detalles_ventas"]) ?>
+<label>descripcion</label>
+<?= Form::text('detalles_ventas.descripcion',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<label>cantidad</label>
+<?= Form::number('detalles_ventas.cantidad',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<<label>unitario</label>
+<?= Form::number('detalles_ventas.unitario',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<label>subtotal</label>
+<?= Form::number('detalles_ventas.subtotal',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<label>descuento</label>
+<?= Form::number('detalles_ventas.descuento',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<label>importe</label>
+<?= Form::number('detalles_ventas.importe',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+
+
+<input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-allow-reorder="true"
+       data-max-file-size="3MB"
+       data-max-files="3"
+       accept="image/png, image/jpeg, image/gif,image/jpg">
+
+<!-- Para los botones -->
+<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::close() ?>
+<!-- Script para limpiar formulario -->
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>
