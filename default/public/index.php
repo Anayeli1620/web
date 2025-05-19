@@ -67,7 +67,9 @@ define('APP_PATH', dirname(__DIR__).'/app/');
 define('CORE_PATH', dirname(APP_PATH, 2).'/core/');
 //const CORE_PATH = '/path/to/core/';
 
-define('URL_APP','http://localhost:80/Kumbiaphp');
+
+define('URL_APP','https://plankton-app-mcuxq.ondigitalocean.app');
+//define('URL_APP','http://localhost:80/Kumbiaphp');
 //define('URL_APP', 'https://ba9e069c35a856ee1bf68ce835a3eab5.serveo.net/Kumbiaphp');
 
 /*
