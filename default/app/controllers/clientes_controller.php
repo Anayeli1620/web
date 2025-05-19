@@ -113,7 +113,7 @@ class ClientesController extends AppController
         View::select(null);
         View::template(null);
         header('Content-Type: application/json');
-        ob_clean(); // Limpiar buffer de salida
+        ob_clean();
 
         try {
             if (empty($_FILES['fileup'])) {
@@ -123,6 +123,7 @@ class ClientesController extends AppController
             $archivo = $_FILES['fileup'];
             $directorio = "public/uploads/clientes/";
 
+            // Crear directorio si no existe
             if (!is_dir($directorio)) {
                 if (!mkdir($directorio, 0755, true)) {
                     throw new Exception('No se pudo crear el directorio', 500);
@@ -130,53 +131,56 @@ class ClientesController extends AppController
             }
 
             // Validar tipo de imagen
-            $mime_permitidos = ['image/jpeg', 'image/png', 'image/gif'];
+            $mime_permitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!in_array($archivo['type'], $mime_permitidos)) {
-                throw new Exception('Solo se permiten imágenes JPEG, PNG o GIF', 400);
+                throw new Exception('Solo se permiten imágenes JPEG, PNG, GIF o WebP', 400);
             }
 
-
-            // Conservar el nombre original del archivo
-            $nombre_original = $archivo['name'];
-
-            // Limpiar el nombre del archivo (opcional, para seguridad)
-            $nombre_limpio = preg_replace('/[^a-zA-Z0-9._-]/', '_', $nombre_original);
+            // Limpiar nombre del archivo
+            $nombre_limpio = preg_replace('/[^a-zA-Z0-9._-]/', '_', $archivo['name']);
             $ruta_completa = $directorio . $nombre_limpio;
 
-            // Verificar si el archivo ya existe y añadir sufijo si es necesario
+            // Verificar si el archivo ya existe
             $contador = 1;
             while (file_exists($ruta_completa)) {
-                $info = pathinfo($nombre_original);
+                $info = pathinfo($nombre_limpio);
                 $nombre_limpio = $info['filename'] . '_' . $contador . '.' . $info['extension'];
                 $ruta_completa = $directorio . $nombre_limpio;
                 $contador++;
             }
-            if (move_uploaded_file($archivo['tmp_name'], $ruta_completa)) {
-                // Si tenemos ID, actualizamos el producto
-                if ($id) {
-                    $producto = (new Productos())->find_first($id);
-                    if ($producto) {
-                        $producto->imagen = "/uploads/clientes/" . $nombre_archivo;
-                        $producto->update();
-                    }
-                }
 
-                echo json_encode([
-                    'success' => true,
-                    'file' => $nombre_archivo,
-                    'path' => "/uploads/clientes/" . $nombre_archivo,
-                    'producto_id' => $id
-                ]);
-            } else {
+            // Mover archivo
+            if (!move_uploaded_file($archivo['tmp_name'], $ruta_completa)) {
                 throw new Exception('Error al mover el archivo. Verifica permisos.', 500);
             }
+
+            // Actualizar cliente si hay ID
+            if ($id) {
+                $cliente = (new Clientes())->find_first($id);
+                if ($cliente) {
+                    $cliente->imagen = "/uploads/clientes/" . $nombre_limpio;
+                    $cliente->update();
+                }
+            }
+
+            // Respuesta exitosa
+            echo json_encode([
+                'success' => true,
+                'file' => $nombre_limpio,
+                'path' => "/uploads/clientes/" . $nombre_limpio,
+                'cliente_id' => $id
+            ]);
+
         } catch (Exception $e) {
+            // Respuesta de error
             http_response_code($e->getCode() ?: 500);
             echo json_encode([
+                'success' => false,
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'file_info' => !empty($archivo) ? $archivo : null
             ]);
         }
-        exit; // Importante para evitar salida adicional
+        exit;
     }
 }
