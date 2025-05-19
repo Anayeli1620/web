@@ -1,10 +1,10 @@
 <h1 class="text-center">Detalles de la Venta</h1>
 <div class="container">
 
-        <div class="row">
-            <div class="col-md-6">
-                <?= View::partial("detalles_ventas/card", ["detalles_ventas" => $detalles_ventas]) ?>
-            </div>
+    <div class="row">
+        <!-- Tarjetas de cliente en la parte izquierda -->
+        <div class="col-md-6">
+            <?= View::partial("/detalles_ventas/card", null, ["detalles_ventas" => $detalles_ventas]) ?>
         </div>
 
 

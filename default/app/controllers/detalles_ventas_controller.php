@@ -4,11 +4,33 @@ class DetallesVentasController extends AppController
 {
     public function index()
     {
-        // Obtener todas las  y pasarlas a la vista
-        $this->detalles_ventas = (new DetallesVentas())->find();
+        $this->detalles_ventas = (new DetallesVentas())->find("columns: 
+            detalles_ventas.*,
+            ventas.fecha as venta_fecha,
+            productos.nombre as producto_nombre,
+            productos.precio as producto_precio
+        ", "join: 
+            LEFT JOIN ventas ON detalles_ventas.ventas_id = ventas.id
+            LEFT JOIN productos ON detalles_ventas.productos_id = productos.id
+        ");
     }
+
     public function show($id)
     {
+        $this->detalles_ventas = (new DetallesVentas())->find("columns:
+            detalles_ventas.*,
+            productos.nombre as producto_nombre,
+            productos.precio as producto_precio_actual,
+            ventas.fecha as venta_fecha,
+            ventas.total as venta_total
+        ", "join:
+            LEFT JOIN productos ON detalles_ventas.productos_id = productos.id
+            LEFT JOIN ventas ON detalles_ventas.ventas_id = ventas.id
+        ", "conditions: ventas_id = {$id}");
+
+        // Resto del código de show() permanece igual...
+
+
         // Obtener todos los detalles de la venta (productos asociados)
         $this->detalles_ventas = (new DetallesVentas())->find("ventas_id = {$id}");
         // Si no se encuentran detalles, mostrar mensaje de error

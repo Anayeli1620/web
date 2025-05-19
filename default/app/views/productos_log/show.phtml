@@ -1,4 +1,4 @@
-<h1>Producto Log: [<?= $producto_log->id ?>] - Producto ID: <?= $producto_log->producto_id ?></h1>
+<h1>Producto Log: <?= $producto_log->id ?></h1>
 
 <div class="container">
     <div class="row">
@@ -6,9 +6,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Producto: <?= $producto->nombre ?></h5>
-                    <p class="card-text">Descripción: <?= $producto->descripcion ?></p>
-                    <p class="card-text">Entrada: <?= $producto_log->entrada ?></p>
-                    <p class="card-text">Salida: <?= $producto_log->salida ?></p>
+
                     <img src="<?= PUBLIC_PATH ?>img/productos_log/<?= $producto_log->id ?>.jpg" width="250px" >
 
                 </div>
@@ -21,7 +19,6 @@
             <table class="table table-sm table-bordered">
                 <thead>
                 <tr>
-                    <th>Descripción</th>
                     <th>Valor</th>
                 </tr>
                 </thead>
@@ -50,13 +47,7 @@
             </div>
         </div>
 
-        <!-- Gráfico de Ventas Mensuales (si tienes los datos) -->
-        <div class="col-md-6">
-            <div class="card">
-                <h5 class="text-center">Ventas Mensuales</h5>
-                <canvas id="ventasMensualesChart"></canvas>
-            </div>
-        </div>
+
     </div>
 
 </div>

@@ -4,46 +4,64 @@ class IndexController extends AppController
     public function index()
     {
         $this->venta = (new Ventas())->find(5);
-        $this->venta->forma_pago = 'PPD';                         // Asignar la forma de pago 'PPD'
+        $this->venta->forma_pago = 'PPD';
         $this->venta->save();
 
-
         $producto = (new Productos())->find(random_int(1, 100));
-
-
-        $cantidad = random_int(1,10);                             // Generar una cantidad aleatoria entre 1 y 10
-        $this->venta->add_item($producto, $cantidad);             // Agregar el producto y la cantidad a la venta
+        $cantidad = random_int(1, 10);
+        $this->venta->add_item($producto, $cantidad);
         $this->venta->set_finalizar();
     }
 
-    // /KumbiaPHP/default/public/index/subir/empleados/90
-    // /KumbiaPHP/default/public/index/subir/:modelo/:id
-    public function subir($modelo, $id)
+    public function upload($tipo = 'index')
     {
         View::select(null);
         View::template(null);
-        //echo json_encode($_FILES);
 
-        $archivo = $_FILES['fileup'];
-        $directorio = "/var/www/html/Kumbiaphp/default/public/storage/$modelo";
-
-        if (!is_dir($directorio)) {
-            if (mkdir($directorio, 0755, true)) {
-                echo "¡Carpeta creada exitosamente!";
-            } else {
-                echo "Error: No se pudo crear la carpeta.";
+        try {
+            if (empty($_FILES['fileup'])) {
+                throw new Exception('No se recibió ningún archivo');
             }
-        }
 
-        $ruta_archivo = $directorio . $archivo['name'];
-        if (move_uploaded_file($archivo['tmp_name'],$ruta_archivo )) {
-            echo json_encode(['success' => true, 'archivo' => $archivo['name']]);
-        } else {
-            echo json_encode(['error' => 'Error al guardar el archivo']);
-        }
+            $archivo = $_FILES['fileup'];
 
-        $extension = pathinfo($ruta_archivo, PATHINFO_EXTENSION); // Ejemplo: "png"
-        $nueva_ruta = $directorio ."/$id.$extension";
-        rename($ruta_archivo, $nueva_ruta);
+            // Ruta relativa a la carpeta index
+            $directorio = "public/index/";
+
+            // Crear directorio si no existe
+            if (!is_dir($directorio)) {
+                mkdir($directorio, 0755, true);
+            }
+
+            // Validar y sanitizar el nombre del archivo
+            $nombre_original = pathinfo($archivo['name'], PATHINFO_FILENAME);
+            $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
+            $nombre_sanitizado = preg_replace('/[^a-zA-Z0-9-_]/', '', $nombre_original);
+            $nombre_archivo = $nombre_sanitizado . '_' . time() . '.' . $extension;
+
+            $ruta_completa = $directorio . $nombre_archivo;
+
+            // Validar tipo de imagen
+            $mime_permitidos = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!in_array($archivo['type'], $mime_permitidos)) {
+                throw new Exception('Solo se permiten imágenes JPEG, PNG o GIF');
+            }
+
+            if (move_uploaded_file($archivo['tmp_name'], $ruta_completa)) {
+                echo json_encode([
+                    'success' => true,
+                    'file' => $nombre_archivo,
+                    'path' => "/index/" . $nombre_archivo  // Ruta accesible desde web
+                ]);
+            } else {
+                throw new Exception('Error al mover el archivo. Verifica permisos.');
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => true,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

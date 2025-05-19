@@ -1,28 +1,33 @@
 <?php
-View::template("plantilla");
-?>
+
+View::template("plantilla"); ?>
 
 <h1>Pagos</h1>
-<a href="/Kumbiaphp/pagos/registrar" class="btn btn-primary">Registrar Categoría</a>
-
+<a href="/Kumbiaphp/pagos/registrar" class="btn btn-primary">Registrar Pago</a>
+<style>
+    .hidden-id { display: none; }
+</style>
 <table class="table table-striped table-hover" id="myTable">
     <thead>
     <tr>
-        <th>id</th>
-        <th>cliente_id</th>
-        <th>metodo_pago_id</th>
-        <th>total</th>
-        <th>comentario</th>
+        <th class="hidden-id">id</th>
+        <th>Cliente</th> <!-- Cambiado de cliente_id -->
+        <th>Método de Pago</th> <!-- Cambiado de metodo_pago_id -->
+        <th>Total</th>
+        <th>Comentario</th>
     </tr>
     </thead>
     <tbody>
     <?php foreach ($pagos as $p): ?>
         <tr>
-            <!-- Enlace agregado al id para redirigir al show -->
-            <td><a href="http://localhost/Kumbiaphp/pagos/show/<?= $p->id ?>"><?= $p->id ?></a></td>
-            <td><?= $p->cliente_id ?></td>
-            <td><?= $p->metodo_pago_id ?></td>
-            <td><?= $p->total ?></td>
+            <td class="hidden-id"><?= $p->id ?></td>
+            <td>
+                <a href="http://localhost/Kumbiaphp/pagos/show/<?= $p->id ?>">
+                    <?= $p->cliente_nombre ?? 'N/A' ?>
+                </a>
+            </td>
+            <td><?= $p->metodo_pago_nombre ?? 'N/A' ?></td>
+            <td>$<?= number_format($p->total, 2) ?></td>
             <td><?= $p->comentario ?></td>
         </tr>
     <?php endforeach; ?>

@@ -1,59 +1,90 @@
 <?= View::content() ?>
+<!-- Reemplaza tu formulario actual con esto -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Subir Imagen</h3>
+    </div>
+    <div class="card-body">
+        <input type="file" id="file-input" accept="image/*" class="form-control mb-3">
+        <div id="image-preview" style="display:none;">
+            <img id="preview-img" src="#" alt="Previsualización" class="img-thumbnail" style="max-height: 200px;">
+        </div>
+        <button id="upload-btn" class="btn btn-primary mt-2" disabled>
+            <i class="fas fa-upload"></i> Subir Imagen
+        </button>
+        <div id="upload-status" class="mt-3"></div>
+    </div>
+</div>
 
-<br>
-<h1>$<?= $venta->total ?> == $<?= $venta->getCliente()->credito ?></h1>
-<h1><?= $venta->venta_valida(); ?></h1>
-<br>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const previewImg = document.getElementById('preview-img');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadStatus = document.getElementById('upload-status');
 
-<h1> <?= count($venta->getItems()); ?> </h1>
-<br>
-<h1> $<?= $venta->total ?> == $<?= $venta->getCliente()->credito ?> </h1>
-<h1> <?= $venta->venta_valida(); ?> </h1>
-<br>
-
-<form method="POST" action=/var/www/html/Kumbiaphp/default/public/storage/$modelo" enctype="multipart/form-data">
-    <input type="file"
-           id="file_input"
-           class="filepond"
-           name="fileup"
-           multiple
-           data-allow-reorder="true"
-           data-max-file-size="3MB"
-           data-max-files="3">
-    <br>
-    <button type="submit" class="btn btn-primary mt-3">subir</button>
-</form>
-
-
-<script type="text/javascript">
-    FilePond.registerPlugin(
-        FilePondPluginImagePreview
-    );
-
-    // 3. Configurar FilePond
-    const pond = FilePond.create(document.querySelector('#file_input'), {
-        allowMultiple: false,
-        instantUpload: true,
-        imagePreviewHeight: 170,
-        server: {
-            process: {
-                url: '/Kumbiaphp/default/public/index/storage/productos/4',
-                method: 'POST',
-                // Agrega estos parámetros importantes
-                timeout: 7000,
-                ondata: (formData) => {
-                    // Agrega campo adicional si lo necesitas
-                    formData.append('campo_extra', 'valor');
-                    return formData;
-                },
-                onload: (response) => {
-                    console.log('Respuesta completa:', response);
-                    return response; // Asegúrate de devolver la respuesta
-                },
-                onerror: (error) => {
-                    console.error('Error detallado:', error);
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    uploadBtn.disabled = false;
                 }
+                reader.readAsDataURL(this.files[0]);
             }
-        }
+        });
+
+        uploadBtn.addEventListener('click', function() {
+            if (!fileInput.files.length) return;
+
+            const formData = new FormData();
+            formData.append('fileup', fileInput.files[0]);
+
+            // Cambia esta ruta según tu configuración
+            const uploadUrl = '/Kumbiaphp/index/upload';
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            uploadStatus.innerHTML = '<div class="alert alert-info">Subiendo imagen...</div>';
+
+            fetch(uploadUrl, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        uploadStatus.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check"></i> Imagen subida correctamente!
+                        <br><small>Archivo: ${data.file}</small>
+                    </div>
+                `;
+                        // Opcional: Resetear después de 3 segundos
+                        setTimeout(() => {
+                            fileInput.value = '';
+                            imagePreview.style.display = 'none';
+                            uploadBtn.disabled = true;
+                            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Imagen';
+                        }, 3000);
+                    } else {
+                        throw new Error(data.message || 'Error desconocido');
+                    }
+                })
+                .catch(error => {
+                    uploadStatus.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
+                </div>
+            `;
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Imagen';
+                });
+        });
     });
 </script>

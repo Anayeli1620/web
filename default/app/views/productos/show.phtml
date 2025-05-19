@@ -13,7 +13,7 @@
                     <p class="card-text"><strong>Precio:</strong> $<?= number_format($productos->precio, 2) ?></p>
                     <p class="card-text"><strong>Stock:</strong> <?= $productos->stock ?></p>
                     <p class="card-text"><strong>Categoría:</strong> <?= $categoria ? $categoria->nombre : 'Sin categoría' ?></p>
-                    <img src="<?= PUBLIC_PATH ?>img/productos/<?= $productos->id ?>.jpg" width="250px" alt="Productos">
+                    <img src="<?= PUBLIC_PATH ?>public/uploads/productos/<?= $productos->id ?>.jpg" width="250px" alt="Productos">
                 </div>
             </div>
         </div>

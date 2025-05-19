@@ -2,39 +2,48 @@
 <?php
 View::template("plantilla");
 ?>
-<h1>detalles_ventas</h1>
-<a href="/Kumbiaphp/detalles_ventas/registrar" class="btn btn-primary">Registrar los detalles de las ventas</a>
-    <table border="1" <table class="table table-striped table-hover" id="myTable">
+
+
+<h1>Detalles de Ventas</h1>
+<style>
+    .hidden-id { display: none; }
+</style>
+<a href="/Kumbiaphp/detalles_ventas/registrar" class="btn btn-primary">Registrar Detalles</a>
+<table class="table table-striped table-hover" id="myTable">
     <thead>
     <tr>
-        <th>id</th>
-        <th>ventas_id</th>
-        <th>productos_id</th>
-        <th>descripcion</th>
-        <th>cantidad</th>
-        <th>unitario</th>
-        <th>subtotal</th>
-        <th>descuento</th>
-        <th>importe</th>
+        <th class="hidden-id">id</th>
+        <th>Venta (Fecha)</th> <!-- Cambiado de ventas_id -->
+        <th>Producto</th> <!-- Cambiado de productos_id -->
+        <th>Descripción</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+        <th>Descuento</th>
+        <th>Importe</th>
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($detalles_ventas as $p): ?>
+    <?php foreach ($detalles_ventas as $detalle): ?>
         <tr>
-            <td><?= $p->id ?></td>
-            <td><a href="http://localhost:80/Kumbiaphp/detalles_ventas/show/<?= $p->id ?>"><?= $p->ventas_id ?></a>
-
-            <td><?= $p->productos_id ?></td>
-            <td><?= $p->descripcion ?></td>
-            <td><?= $p->cantidad ?></td>
-            <td><?= $p->unitario ?></td>
-            <td><?= $p->subtotal ?></td>
-            <td><?= $p->descuento ?></td>
-            <td><?= $p->importe ?></td>
+            <td class="hidden-id"><?= $detalle->id ?></td>
+            <td>
+                <a href="http://localhost/Kumbiaphp/detalles_ventas/show/<?= $detalle->ventas_id ?>">
+                    <?= date('d/m/Y', strtotime($detalle->venta_fecha ?? '')) ?>
+                </a>
+            </td>
+            <td><?= $detalle->producto_nombre ?? 'N/A' ?></td>
+            <td><?= $detalle->descripcion ?></td>
+            <td><?= $detalle->cantidad ?></td>
+            <td>$<?= number_format($detalle->unitario, 2) ?></td>
+            <td>$<?= number_format($detalle->subtotal, 2) ?></td>
+            <td>$<?= number_format($detalle->descuento, 2) ?></td>
+            <td>$<?= number_format($detalle->importe, 2) ?></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
     <link rel="stylesheet" href="/DataTables/datatables.css" />
+
     <script src="/DataTables/datatables.js"></script>
     <script>
         let table = new DataTable('#myTable', {
@@ -42,6 +51,8 @@ View::template("plantilla");
         });
     </script>
 </table>
+
+<!-- DataTables y botón Regresar (mantén este código) -->
 </>
 <?= Form::open() ?>
 <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>

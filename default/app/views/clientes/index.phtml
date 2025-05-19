@@ -4,13 +4,14 @@ View::template("plantilla");
 
 <h1>Clientes</h1>
 <a href="/Kumbiaphp/clientes/registrar" class="btn btn-primary">Registrar Clientes</a>
-
+<style>
+    .hidden-id { display: none; }
+</style>
  <table class="table table-striped table-hover" id="myTable">
 
     <thead>
     <tr>
-        <th>id</th>
-        <th>razon_social</th>
+        <th class="hidden-id">id</th> <!-- Ocultar encabezado -->
         <th>nombre</th>
         <th>email</th>
         <th>telefono</th>
@@ -23,8 +24,7 @@ View::template("plantilla");
     <tbody>
     <?php foreach ($clientes as $p): ?>
         <tr>
-            <td><?= $p->id ?></td>
-            <td><?= $p->razon_social ?></td>
+            <td class="hidden-id"><?= $p->id ?></td> <!-- Ocultar celda -->
             <td><a href="/Kumbiaphp/clientes/show/<?= $p->id ?>"><?= $p->nombre ?></a></td>
             <td><?= $p->email ?></td>
             <td><?= $p->telefono ?></td>

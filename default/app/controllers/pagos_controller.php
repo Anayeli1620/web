@@ -8,13 +8,19 @@ class PagosController extends AppController
 
 
 
-    public function index() {
-        // Obtener todos los empleados y pasarlos a la vista
-        $this->pagos = (new pagos())->find();
-
+       public function index()
+    {
+        $this->pagos = (new Pagos())->find("columns: 
+            pagos.*,
+            clientes.nombre as cliente_nombre,
+            metodos_pago.nombre as metodo_pago_nombre
+        ", "join: 
+            LEFT JOIN clientes ON pagos.cliente_id = clientes.id
+            LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
+        ");
     }
-    //lista los clientes
-    //mostrarar las ventas adeudadas
+
+    // ... (el resto de tus métodos permanecen igual)
 
     public function nueva($cliente_id = null)
     {

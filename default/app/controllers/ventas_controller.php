@@ -1,6 +1,4 @@
 <?php
-
-
 class VentasController extends AppController
 {
     public function metodos_pago()
@@ -10,8 +8,23 @@ class VentasController extends AppController
 
     public function index()
     {
-        $this->Ventas = (new Ventas())->find();
+        // Consulta con JOINS para obtener nombres relacionados
+        $this->Ventas = (new Ventas())->find("columns: 
+            ventas.*,
+            clientes.nombre as cliente_nombre,
+            empleados.nombre as empleado_nombre,
+            metodos_pago.nombre as metodo_pago_nombre,
+            usuarios.email as usuario_email
+        ", "join: 
+            LEFT JOIN clientes ON ventas.clientes_id = clientes.id
+            LEFT JOIN empleados ON ventas.empleados_id = empleados.id
+            LEFT JOIN metodos_pago ON ventas.metodos_pago_id = metodos_pago.id
+            LEFT JOIN usuarios ON ventas.usuario_id = usuarios.id
+        ");
     }
+
+    // ... (el resto de tus métodos permanecen igual)
+
 
     public function nueva($cliente_id = null){
         $this->cliente = null;

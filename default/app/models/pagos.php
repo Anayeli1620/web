@@ -7,6 +7,9 @@ class Pagos extends ActiveRecord
         $this->belongs_to('cliente', 'model: Clientes', 'fk: cliente_id');
         $this->belongs_to('metodo', 'model: MetodosPago', 'fk: metodo_pago_id');
 
+
+
+
 //        // Validación para cliente_id (presencia y existencia en la tabla 'clientes')
 //        $this->validates_presence_of("cliente_id");
 //        $this->validates_numericality_of("cliente_id", [
@@ -35,4 +38,6 @@ class Pagos extends ActiveRecord
 
         // Relación con los detalles de los pagos (si es necesario en el futuro)
     }
+
+
 }

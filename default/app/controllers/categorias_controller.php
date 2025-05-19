@@ -51,34 +51,6 @@ class CategoriasController extends AppController
         $this->total_unidades = $total_unidades;
     }
 
-    public function subir($modelo, $id)
-    {
-        View::select(null);
-        View::template(null);
-        //echo json_encode($_FILES);
-
-        $archivo = $_FILES['fileup'];
-        $directorio = "/var/www/html/Kumbiaphp/default/public/storage/$modelo";
-
-        if (!is_dir($directorio)) {
-            if (mkdir($directorio, 0755, true)) {
-                echo "¡Carpeta creada exitosamente!";
-            } else {
-                echo "Error: No se pudo crear la carpeta.";
-            }
-        }
-
-        $ruta_archivo = $directorio . $archivo['name'];
-        if (move_uploaded_file($archivo['tmp_name'],$ruta_archivo )) {
-            echo json_encode(['success' => true, 'archivo' => $archivo['name']]);
-        } else {
-            echo json_encode(['error' => 'Error al guardar el archivo']);
-        }
-
-        $extension = pathinfo($ruta_archivo, PATHINFO_EXTENSION); // Ejemplo: "png"
-        $nueva_ruta = $directorio ."/$id.$extension";
-        rename($ruta_archivo, $nueva_ruta);
-    }
 
 
     public function registrar()

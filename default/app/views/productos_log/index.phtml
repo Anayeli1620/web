@@ -1,6 +1,4 @@
-<?php
-View::template("plantilla");
-?>
+<?php View::template("plantilla"); ?>
 
 <h1>Productos Log</h1>
 
@@ -9,22 +7,40 @@ View::template("plantilla");
 <table class="table table-striped table-hover" id="myTable">
     <thead>
     <tr>
-        <th>ID Producto Log</th>
-        <th>ID Producto</th>
+        <th>Fecha</th>
+        <th>Producto</th>
         <th>Entrada</th>
         <th>Salida</th>
+        <th>Venta Relacionada</th>
         <th>Acciones</th>
     </tr>
     </thead>
     <tbody>
     <?php foreach ($productos_log as $log): ?>
         <tr>
-            <td><?= $log->id ?></td>
-            <td><a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>"><?= $log->producto_id ?></a></td>
+            <td><?= date('d/m/Y H:i', strtotime($log->created_at)) ?></td>
+            <td>
+                <?php
+                // Obtener el nombre del producto (esto debería venir del controlador)
+                $producto = (new Productos())->find_first($log->producto_id);
+                echo $producto ? $producto->nombre : 'N/A';
+                ?>
+            </td>
             <td><?= $log->entrada ?></td>
             <td><?= $log->salida ?></td>
             <td>
-                <a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>"</a>
+                <?php if ($log->venta_id): ?>
+                    <a href="/Kumbiaphp/ventas/show/<?= $log->venta_id ?>">
+                        Venta #<?= $log->venta_id ?>
+                    </a>
+                <?php else: ?>
+                    N/A
+                <?php endif; ?>
+            </td>
+            <td>
+                <a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>" class="btn btn-sm btn-info">
+                    Detalle
+                </a>
             </td>
         </tr>
     <?php endforeach; ?>
@@ -35,7 +51,6 @@ View::template("plantilla");
 <script>
     let table = new DataTable('#myTable');
 </script>
-
 <?= Form::open() ?>
 
 <!-- Botón Regresar -->

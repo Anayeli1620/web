@@ -5,20 +5,40 @@ class PagosItemsController extends AppController
     // Método para listar todos los pagos en el sistema
     public function index()
     {
-        // Obtener todos los registros de pagos_items
-        $this->pagos_items = (new PagosItems())->find();
+        $this->pagos_items = (new PagosItems())->find("columns: 
+        pagos_items.*,
+        ventas.total as venta_total,
+        clientes.nombre as cliente_nombre,
+        metodos_pago.nombre as metodo_pago_nombre
+    ", "join: 
+        LEFT JOIN ventas ON pagos_items.venta_id = ventas.id
+        LEFT JOIN clientes ON ventas.clientes_id = clientes.id
+        LEFT JOIN pagos ON pagos_items.pago_id = pagos.id
+        LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
+    ");
     }
 
-    // Método para mostrar los detalles de un pago específico
     public function show($id)
     {
-        // Buscar el registro de pago_item por ID
-        $this->pago_item = (new PagosItems())->find_first($id);
+        $this->pago_item = (new PagosItems())->find_first("columns:
+            pagos_items.*,
+            ventas.total as venta_total,
+            clientes.nombre as cliente_nombre,
+            metodos_pago.nombre as metodo_pago_nombre,
+            pagos.total as pago_total
+        ", "join:
+            LEFT JOIN ventas ON pagos_items.venta_id = ventas.id
+            LEFT JOIN clientes ON ventas.clientes_id = clientes.id
+            LEFT JOIN pagos ON pagos_items.pago_id = pagos.id
+            LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
+        ", "conditions: pagos_items.id = {$id}");
 
         if (!$this->pago_item) {
             Flash::error('Pago no encontrado');
             return Redirect::to('pagos_items/index');
         }
+
+
 
         // Obtener los detalles de pago y venta relacionados
         $this->pago = $this->pago_item->pago;  // Relación con el pago

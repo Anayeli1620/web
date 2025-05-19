@@ -4,12 +4,43 @@ class ProductosLogController extends AppController
 {
     public function index()
     {
-        // Obtener todos los registros de productos_log
-        $this->productos_log = (new ProductosLog())->find();
+        $this->productos_log = (new ProductosLog())->find("columns: 
+        productos_log.*,
+        productos.nombre as producto_nombre,
+        productos.precio as producto_precio,
+        ventas.id as venta_id,
+        ventas.fecha as venta_fecha
+    ", "join: 
+        LEFT JOIN productos ON productos_log.producto_id = productos.id
+        LEFT JOIN ventas ON productos_log.venta_id = ventas.id
+    ");
     }
 
     public function show($id)
     {
+        $this->producto_log = (new ProductosLog())->find_first("columns:
+            productos_log.*,
+            productos.nombre as producto_nombre,
+            productos.precio as producto_precio,
+            ventas.id as venta_id,
+            ventas.fecha as venta_fecha,
+            ventas.total as venta_total
+        ", "join:
+            LEFT JOIN productos ON productos_log.producto_id = productos.id
+            LEFT JOIN ventas ON productos_log.venta_id = ventas.id
+        ", "conditions: productos_log.id = {$id}");
+
+        if (!$this->producto_log) {
+            Flash::error('Registro de producto no encontrado');
+            return Redirect::to('productos_log/index');
+        }
+
+        // Calcular stock actual
+        $this->stock_actual = $this->producto_log->entrada - $this->producto_log->salida;
+
+
+    // ... (el método registrar permanece igual)
+
         // Buscar el producto log por ID
         $this->producto_log = (new ProductosLog())->find_first($id);
 
