@@ -4,7 +4,7 @@ View::template("plantilla");
 
 
 <h1>Productos</h1>
-<a href="/Kumbiaphp/productos/registrar" class="btn btn-primary">Registrar Producto</a>
+<a href="<?=URL_APP?>/productos/registrar" class="btn btn-primary">Registrar Producto</a>
 <style>
     .hidden-id { display: none; }
 </style>
@@ -24,7 +24,7 @@ View::template("plantilla");
             <td class="hidden-id"><?= $p->id ?></td>
             <td><?= $p->categoria_nombre ?? 'N/A' ?></td>
             <td>
-                <a href="http://localhost/Kumbiaphp/productos/show/<?= $p->id ?>">
+                <a href="<?=URL_APP?>/productos/show/<?= $p->id ?>">
                     <?= $p->nombre ?>
                 </a>
             </td>

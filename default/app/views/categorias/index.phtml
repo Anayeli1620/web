@@ -4,7 +4,7 @@ View::template("plantilla");
 
 <h1>Categorías</h1>
 
-<a href="/Kumbiaphp/categorias/registrar" class="btn btn-primary">Registrar Categoría</a>
+<a href="<?=URL_APP?>/categorias/registrar" class="btn btn-primary">Registrar Categoría</a>
 <style>
     .hidden-id { display: none; }
 </style>
@@ -19,7 +19,7 @@ View::template("plantilla");
     <?php foreach ($categorias as $p): ?>
         <tr>
             <td class="hidden-id"><?= $p->id ?></td> <!-- Ocultar celda -->
-            <td><a href="http://localhost:80/Kumbiaphp/categorias/show/<?= $p->id ?>"><?= $p->nombre ?></a></td>
+            <td><a href="<?=URL_APP?>/categorias/show/<?= $p->id ?>"><?= $p->nombre ?></a></td>
         </tr>
     <?php endforeach; ?>
     </tbody>

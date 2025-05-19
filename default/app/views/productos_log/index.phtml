@@ -2,7 +2,7 @@
 
 <h1>Productos Log</h1>
 
-<a href="/Kumbiaphp/productos_log/registrar" class="btn btn-primary">Registrar Producto Log</a>
+<a href="<?=URL_APP?>/productos_log/registrar" class="btn btn-primary">Registrar Producto Log</a>
 
 <table class="table table-striped table-hover" id="myTable">
     <thead>
@@ -30,7 +30,7 @@
             <td><?= $log->salida ?></td>
             <td>
                 <?php if ($log->venta_id): ?>
-                    <a href="/Kumbiaphp/ventas/show/<?= $log->venta_id ?>">
+                    <a href="<?=URL_APP?>/ventas/show/<?= $log->venta_id ?>">
                         Venta #<?= $log->venta_id ?>
                     </a>
                 <?php else: ?>
@@ -38,7 +38,7 @@
                 <?php endif; ?>
             </td>
             <td>
-                <a href="/Kumbiaphp/productos_log/show/<?= $log->id ?>" class="btn btn-sm btn-info">
+                <a href="<?=URL_APP?>/productos_log/show/<?= $log->id ?>" class="btn btn-sm btn-info">
                     Detalle
                 </a>
             </td>

@@ -3,7 +3,7 @@
 View::template("plantilla"); ?>
 
 <h1>Pagos</h1>
-<a href="/Kumbiaphp/pagos/registrar" class="btn btn-primary">Registrar Pago</a>
+<a href="<?=URL_APP?>/pagos/registrar" class="btn btn-primary">Registrar Pago</a>
 <style>
     .hidden-id { display: none; }
 </style>
@@ -22,7 +22,7 @@ View::template("plantilla"); ?>
         <tr>
             <td class="hidden-id"><?= $p->id ?></td>
             <td>
-                <a href="http://localhost/Kumbiaphp/pagos/show/<?= $p->id ?>">
+                <a href="<?=URL_APP?>/pagos/show/<?= $p->id ?>">
                     <?= $p->cliente_nombre ?? 'N/A' ?>
                 </a>
             </td>

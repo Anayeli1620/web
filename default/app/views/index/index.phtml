@@ -43,7 +43,7 @@
             formData.append('fileup', fileInput.files[0]);
 
             // Cambia esta ruta según tu configuración
-            const uploadUrl = '/Kumbiaphp/index/upload';
+            const uploadUrl = '<?=URL_APP?>/index/upload';
 
             uploadBtn.disabled = true;
             uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';

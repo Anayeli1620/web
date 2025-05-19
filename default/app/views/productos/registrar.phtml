@@ -60,7 +60,7 @@
                 const formData = new FormData();
                 formData.append('fileup', fileInput.files[0]);
 
-                const uploadUrl = '/Kumbiaphp/productos/upload';
+                const uploadUrl = '<?=URL_APP?>/productos/upload';
 
                 uploadBtn.disabled = true;
                 uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';

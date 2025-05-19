@@ -3,7 +3,7 @@ View::template("plantilla");
 ?>
 
 <h1>empleados</h1>
-<a href="/Kumbiaphp/empleados/registrar" class="btn btn-primary">Registrar Categoría</a>
+<a href="<?=URL_APP?>/empleados/registrar" class="btn btn-primary">Registrar Categoría</a>
 <style>
     .hidden-id { display: none; }
 </style>
@@ -22,7 +22,7 @@ View::template("plantilla");
     <?php foreach ($empleados as $p): ?>
         <tr>
             <td class="hidden-id"><?= $p->id ?></td> <!-- Ocultar celda -->
-            <td><a href="http://localhost:80/Kumbiaphp/empleados/show/<?= $p->id ?>"><?= $p->nombre ?></a>
+            <td><a href="<?=URL_APP?>/empleados/show/<?= $p->id ?>"><?= $p->nombre ?></a>
 
             <td><?= $p->email ?></td>
             <td><?= $p->telefono ?></td>

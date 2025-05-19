@@ -8,7 +8,7 @@ View::template("plantilla");
 <style>
     .hidden-id { display: none; }
 </style>
-<a href="/Kumbiaphp/detalles_ventas/registrar" class="btn btn-primary">Registrar Detalles</a>
+<a href="<?=URL_APP?>/detalles_ventas/registrar" class="btn btn-primary">Registrar Detalles</a>
 <table class="table table-striped table-hover" id="myTable">
     <thead>
     <tr>
@@ -28,7 +28,7 @@ View::template("plantilla");
         <tr>
             <td class="hidden-id"><?= $detalle->id ?></td>
             <td>
-                <a href="http://localhost/Kumbiaphp/detalles_ventas/show/<?= $detalle->ventas_id ?>">
+                <a href="<?=URL_APP?>/detalles_ventas/show/<?= $detalle->ventas_id ?>">
                     <?= date('d/m/Y', strtotime($detalle->venta_fecha ?? '')) ?>
                 </a>
             </td>
