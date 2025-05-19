@@ -6,28 +6,28 @@
 return [
     'development' => [
 
-        'host'     => '143.244.187.253',
+        'host'     => 'db-mysql-sfo3-58066-do-user-18079590-0.m.db.ondigitalocean.com',
 
-        'username' => 'web', //no es recomendable usar el usuario root
+        'username' => 'doadmin',
 
-        'password' => '123456789',
+        'password' => 'AVNS_6-KQujFcvyFYZv3VV7X',
 
         'name'     => 'PuntoVenta',
 
         'type'     => 'mysql',
 
         'charset'  => 'utf8',
-        'port'     => '3307',],
+        'port'     => '25060',],
 
     'production' => [
 
-        'host'     => 'localhost',
+        'host'     => 'db-mysql-sfo3-58066-do-user-18079590-0.m.db.ondigitalocean.com',
 
-        'username' => 'root', //no es recomendable usar el usuario root
+        'username' => 'doadmin', //no es recomendable usar el usuario root
 
-        'password' => '',
+        'password' => 'AVNS_6-KQujFcvyFYZv3VV7X',
 
-        'name'     => 'test',
+        'name'     => 'PuntoVenta',
 
         'type'     => 'mysql',
 
