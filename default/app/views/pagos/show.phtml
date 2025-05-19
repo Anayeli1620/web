@@ -12,7 +12,7 @@
                     <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?></p>
                     <p class="card-text"><strong>Método de Pago:</strong> <?= $pago->metodo_pago_id?></p>
                     <p class="card-text"><strong>Total:</strong> $<?= number_format((float)$total_ingresos, 2) ?></p>
-                    <img src="<?= PUBLIC_PATH ?>img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
+                    <img src="<?=URL_APP?>/public/img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
 
                 </div>
             </div>
