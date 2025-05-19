@@ -26,4 +26,3 @@ default/public/temp
 .sonar
 .scannerwork
 sonar-project.properties
-composer.lock
