@@ -126,6 +126,22 @@ class PagosController extends AppController
 
                             $monto_abonado = min($monto_abonado, $monto_restante_por_distribuir);
 
+                            // Registrar el item de pago ANTES de actualizar la venta
+                            $pago_item = new PagosItems([
+                                'pago_id' => $pago->id,
+                                'venta_id' => $venta->id,
+                                'antes' => $venta->por_pagar,
+                                'monto_pagado' => $monto_abonado,
+                                'adeudo' => $venta->por_pagar - $monto_abonado,
+                                'created_at' => date('Y-m-d H:i:s'),
+                                'updated_in' => date('Y-m-d H:i:s')
+                            ]);
+
+                            if (!$pago_item->create()) {
+                                throw new Exception("Error al registrar el item de pago para la venta $venta_id");
+                            }
+
+                            // Actualizar la venta después de registrar el item de pago
                             $venta->por_pagar -= $monto_abonado;
                             if ($venta->por_pagar <= 0) {
                                 $venta->status = 'pagado';
@@ -135,7 +151,7 @@ class PagosController extends AppController
                                 throw new Exception("Error al actualizar la venta $venta_id");
                             }
 
-                            // 🔽 REGISTRO EN productos_log
+                            // Registrar en productos_log (mantenemos esta parte igual)
                             $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
 
                             foreach ($detalles as $detalle) {
