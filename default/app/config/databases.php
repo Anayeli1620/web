@@ -17,7 +17,7 @@ return [
         'type'     => 'mysql',
 
         'charset'  => 'utf8',
-        'port'     => '3307',],
+        'port'     => '25060',],
 
     'production' => [
 
@@ -32,6 +32,7 @@ return [
         'type'     => 'mysql',
 
         'charset'  => 'utf8',
+        'port'     => '25060',
 
     ],
 ];
