@@ -259,35 +259,31 @@ class VentasController extends AppController
                     Flash::error("Error al guardar venta: " . implode(", ", $errors));
                     return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
                 }
-
+// 🔻 REGISTRAR DETALLES DE VENTA
                 foreach ($carrito as $item) {
-                    $detalle = new Detalles_ventas(); // corregido el nombre del modelo
-                    $detalle->descuento = 0;
+                    $detalle = new Detalles_ventas();
                     $detalle->ventas_id = $venta->id;
                     $detalle->productos_id = $item['producto']->id;
                     $detalle->descripcion = $item['producto']->nombre;
                     $detalle->cantidad = $item['cantidad'];
                     $detalle->unitario = $item['producto']->precio;
-                    $detalle->subtotal = $detalle->cantidad * $detalle->unitario;
-                    $detalle->importe = $detalle->subtotal - $detalle->descuento;
-                    $detalle->save();
+                    $detalle->descuento = 0;
 
-                    // 🔽 REGISTRO EN productos_log
-                    $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
-                    foreach ($detalles as $detalle) {
-                        $log = new ProductosLog([
-                            'producto_id' => $detalle->productos_id,
-                            'entrada' => 0,
-                            'salida' => $detalle->cantidad,
-                            'venta_id' => $venta->id,
-                            'created_at' => date('Y-m-d H:i:s')
-                        ]);
-                        if (!$log->create()) {
-                            throw new Exception("Error al registrar en productos_log para el producto {$detalle->productos_id}");
-                        }
+                    // Asignar subtotal explícitamente (por si el before_save falla)
+                    $detalle->subtotal = $item['cantidad'] * $item['producto']->precio;
+
+                    if (!$detalle->save()) {
+                        // Manejo mejorado de errores
+                        $errorInfo = $detalle->get_error_messages();
+                        error_log("Error al guardar detalle: ".print_r($errorInfo, true));
+                        Flash::error("Error con producto {$item['producto']->nombre}: ".implode(", ", $errorInfo));
+
+                        // Opcional: Rollback manual si estás usando transacciones
+                        // ActiveRecord::rollback();
+                        // return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
                     }
-
-
+                }
+                foreach ($carrito as $item) {
 
                     // 🔻 Descontar stock
                     $producto = (new Productos())->find_first($item['producto']->id);

@@ -29,8 +29,8 @@ View::template("plantilla");
                     <?= $ven->cliente_nombre  ?> <!-- Nombre del cliente -->
                 </a>
             </td>
-            <td><?=  $ven->empleados->nombre ?></td>
-            <td><?=$ven->metodo_pago_id->nombre  ?></td>
+            <td><?=$ven->empleado_nombre ?></td>
+            <td><?=$ven->metodo_pago_nombre  ?></td>
             <td><?= $ven->fecha ?></td>
             <td><?= $ven->total ?></td>
             <td><?= $ven->por_pagar ?></td>
