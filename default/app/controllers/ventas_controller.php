@@ -93,13 +93,12 @@ class VentasController extends AppController
 
 
 
-        // Resto del código permanece igual...
         $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
 
         if (!Session::has($carrito_key)) {
             Session::set($carrito_key, []);
         }
-        $carrito = Session::get($carrito_key);
+        $carrito = $this->obtenerCarritoCliente($cliente_seleccionado);
 
 // Debug: Verificar contenido del carrito
         error_log("Contenido del carrito para cliente $cliente_seleccionado: " . print_r($carrito, true));
@@ -135,7 +134,7 @@ class VentasController extends AppController
             : (new Productos())->find("stock > 0");
 
         $this->metodos_pago = (new MetodosPago())->find();
-
+//se hace dinamico el asunto
         $cliente_seleccionado = Session::get('cliente_id');
         $this->cliente_seleccionado = $cliente_seleccionado;
         $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
@@ -311,6 +310,15 @@ class VentasController extends AppController
         $this->total_carrito = array_reduce($carrito, fn($carry, $item) => $carry + $item['subtotal'], 0);
         $this->buscar_cliente = $buscar_cliente;
         $this->buscar_producto = $buscar_producto;
+    }
+    private function obtenerCarritoCliente($cliente_id) {
+        $carrito_key = 'carrito_venta_cliente_' . $cliente_id;
+
+        if (!Session::has($carrito_key)) {
+            Session::set($carrito_key, []);
+        }
+
+        return Session::get($carrito_key);
     }
 
     public function guardarCarritoAction() {
