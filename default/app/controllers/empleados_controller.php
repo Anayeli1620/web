@@ -31,7 +31,7 @@ class EmpleadosController extends AppController {
         // Comprobar primero si hay ventas
         if (!empty($ventas)) {
             foreach ($ventas as $venta) {
-                $detalleVenta = (new DetallesVentas())->find_first("ventas_id = {$venta->id}");
+                $detalleVenta = (new Detalles_ventas())->find_first("ventas_id = {$venta->id}");
 
                 // Validar que el detalle de la venta exista
                 if (!$detalleVenta) {

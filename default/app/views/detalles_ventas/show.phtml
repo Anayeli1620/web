@@ -4,6 +4,19 @@
     <div class="row">
         <!-- Tarjetas de cliente en la parte izquierda -->
         <div class="col-md-6">
+            <?php $primer_detalle = !empty($detalles_ventas) ? $detalles_ventas[0] : null; ?>
+
+            <?php if ($primer_detalle): ?>
+                <h5 class="card-title">DESCRIPCION: <?= $primer_detalle->descripcion ?></h5>
+                <h5 class="card-title">CANTIDAD: <?= $primer_detalle->cantidad ?></h5>
+                <h5 class="card-title">UNITARIO: <?= $primer_detalle->unitario ?></h5>
+                <h5 class="card-title">SUBTOTAL: <?= $primer_detalle->subtotal ?></h5>
+                <h5 class="card-title">DESCUENTO: <?= $primer_detalle->descuento ?></h5>
+                <h5 class="card-title">IMPORTE: <?= $primer_detalle->importe ?></h5>
+            <?php else: ?>
+                <p>No hay detalles para esta venta.</p>
+            <?php endif; ?>
+
             <?= View::partial("/detalles_ventas/card", null, ["detalles_ventas" => $detalles_ventas]) ?>
         </div>
 

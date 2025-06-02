@@ -9,6 +9,8 @@ class MetodosPago extends ActiveRecord {
     }
 
     public function initialize() {
+        $this->has_many('ventas');
+
         // Validación para el nombre del método de pago
 //        $this->validates_presence_of("nombre");
 //        $this->validates_length_of(

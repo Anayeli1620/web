@@ -47,7 +47,7 @@ class MetodosPagoController extends AppController
 
         foreach ($this->ventas as $venta) {
             // Cargar detalles de la venta manualmente
-            $detalles = (new DetallesVentas())->find("ventas_id = {$venta->id}");
+            $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
 
             foreach ($detalles as $detalle) {
                 // Cargar el producto manualmente

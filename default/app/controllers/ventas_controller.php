@@ -1,173 +1,390 @@
 <?php
 class VentasController extends AppController
 {
-    public function metodos_pago()
-    {
-        return $this->belongs_to('MetodoPago', 'metodo_pago_id');
-    }
-
     public function index()
     {
-        // Consulta con JOINS para obtener nombres relacionados
-        $this->Ventas = (new Ventas())->find("columns: 
-            ventas.*,
-            clientes.nombre as cliente_nombre,
-            empleados.nombre as empleado_nombre,
-            metodos_pago.nombre as metodo_pago_nombre,
-            usuarios.email as usuario_email
-        ", "join: 
-            LEFT JOIN clientes ON ventas.clientes_id = clientes.id
-            LEFT JOIN empleados ON ventas.empleados_id = empleados.id
-            LEFT JOIN metodos_pago ON ventas.metodos_pago_id = metodos_pago.id
-            LEFT JOIN usuarios ON ventas.usuario_id = usuarios.id
-        ");
+        try {
+            $this->ventas = (new Ventas())->find("columns: 
+                ventas.*,
+                clientes.nombre as cliente_nombre,
+                empleados.nombre as empleado_nombre,
+                metodos_pago.nombre as metodo_pago_nombre
+            ", "join: 
+                LEFT JOIN clientes ON ventas.clientes_id = clientes.id
+                LEFT JOIN empleados ON ventas.empleados_id = empleados.id
+                LEFT JOIN metodos_pago ON ventas.metodos_pago_id = metodos_pago.id
+            ", "order: ventas.fecha DESC");
+        } catch (Exception $e) {
+            Flash::error("Error al cargar ventas: " . $e->getMessage());
+        }
     }
-
-    // ... (el resto de tus métodos permanecen igual)
-
-
-    public function nueva($cliente_id = null){
-        $this->cliente = null;
-        $this->venta =null;
-        $search = Input::get('search');  // Obtener el término de búsqueda
-
-
-        if($cliente_id != null){
-            $this->cliente = (new Clientes())->find($cliente_id);
-            $this->venta = (new Ventas())->get_carrito($cliente_id);
-        }
-        // Si hay un término de búsqueda
-        if ($search) {
-            // Realizar la búsqueda de productos (o clientes) que coincidan con el término
-            $this->productos = (new Productos())->find("conditions: nombre LIKE '%{$search}%'");
-        } else {
-            // Si no hay búsqueda, obtener todos los productos
-            $this->productos = (new Productos())->find();
-        }
-        if(Input::hasGet("cliente")){
-            $cliente_id = Input::get("cliente");
-            $this->cliente = (new Clientes())->find($cliente_id);
-            $this->venta = (new Ventas())->crear($cliente_id);
-            Redirect::toAction("nueva/{$cliente_id}");
-        }
-
-        if(Input::hasPost("producto_id")){
-            $producto = (new Productos())->find(Input::post("producto_id"));
-            $cantidad = 1;
-
-            if ($this->venta) {
-                $this->venta->add_item($producto, $cantidad);
-                $detalle_venta = (new DetallesVentas())->find_first("ventas_id = {$this->venta->id} AND productos_id = {$producto->id}");
-
-            } else {
-                Flash::error("No se ha creado una venta. Selecciona un cliente primero.");
-                return Redirect::toAction("nueva");
-            }
-        }
-
-    }
-
-
-
-
-
-
     public function show($id)
     {
-        $this->ventas = (new Ventas())->find_first($id);
+        // Obtener la venta principal (solo una)
+        $venta = (new Ventas())->find_first((int) $id);
+        $this->venta = (new Ventas())->find($id); // en singular
 
-        if (!$this->ventas) {
+
+        if (!$venta) {
             Flash::error('Venta no encontrada');
             return Redirect::to('ventas/index');
         }
 
-        $this->detalles_ventas = (new DetallesVentas())->find("ventas_id = {$this->ventas->id}");
+        // Obtener detalles de esa venta
+        $detalles_ventas = (new Detalles_ventas())->find("conditions: ventas_id = $id");
 
-        if (empty($this->detalles_ventas)) {
-            Flash::error('No se encontraron productos vendidos para esta venta.');
-        }
-
+        // Cálculos
         $total_unidades = 0;
         $total_ingresos = 0;
-        $ultima_fecha = null;
-        $ventas_por_mes = [];
-        $productos_mas_vendidos = [];
-
-        if (!empty($this->detalles_ventas)) {
-            foreach ($this->detalles_ventas as $detalle) {
-                $producto = (new Productos())->find_first($detalle->productos_id);
-                $total_unidades += $detalle->cantidad;
-                $total_ingresos += $detalle->cantidad * $detalle->precio;
-                $mes = date("Y-m", strtotime($this->ventas->fecha));
-
-                if (!isset($ventas_por_mes[$mes])) {
-                    $ventas_por_mes[$mes] = 0;
-                }
-
-                $ventas_por_mes[$mes] += $detalle->cantidad * $detalle->precio;
-
-                if (!isset($productos_mas_vendidos[$producto->nombre])) {
-                    $productos_mas_vendidos[$producto->nombre] = 0;
-                }
-                $productos_mas_vendidos[$producto->nombre] += $detalle->cantidad;
-            }
-            $ultima_fecha = $this->ventas->fecha;
+        foreach ($detalles_ventas as $detalle) {
+            $producto = (new Productos())->find_first($detalle->productos_id);
+            $cantidad = $detalle->cantidad;
+            $precio = $producto ? $producto->precio : 0;
+            $total_unidades += $cantidad;
+            $total_ingresos += $precio * $cantidad;
         }
 
-        $this->productos_mas_vendidos = $productos_mas_vendidos;
+        // Productos más vendidos
+        $productos_mas_vendidos = [];
+        $detalles = (new Detalles_ventas())->find();
+        foreach ($detalles as $d) {
+            $productos_mas_vendidos[$d->productos_id] = ($productos_mas_vendidos[$d->productos_id] ?? 0) + $d->cantidad;
+        }
+
+        $productos_nombres = [];
+        foreach (array_keys($productos_mas_vendidos) as $prod_id) {
+            $producto = (new Productos())->find_first($prod_id);
+            if ($producto) {
+                $productos_nombres[$producto->nombre] = $productos_mas_vendidos[$prod_id];
+            }
+        }
+
+        // Ventas por mes
+        $ventas_por_mes = [];
+        $todas_ventas = (new Ventas())->find();
+        foreach ($todas_ventas as $v) {
+            $mes = date('Y-m', strtotime($v->fecha));
+            $ventas_por_mes[$mes] = ($ventas_por_mes[$mes] ?? 0) + $v->total;
+        }
+
+        // Pasar datos a la vista
+        $this->venta = $venta; // UNA sola venta
+        $this->detalles_ventas = $detalles_ventas;
         $this->total_unidades = $total_unidades;
         $this->total_ingresos = $total_ingresos;
-        $this->ultima_fecha = $ultima_fecha;
+        $this->ultima_fecha = $venta->fecha;
+        $this->productos_mas_vendidos = $productos_nombres;
         $this->ventas_por_mes = $ventas_por_mes;
     }
 
-    public function registrar()
+
+    public function registrar($cliente_id = null)
     {
-        if (Input::hasPost('ventas') && Input::hasPost('detalles_ventas')) {
-            $venta = new Ventas(Input::post('ventas'));
+        // Obtener el cliente actual de la sesión
+        $cliente_actual = Session::get('cliente_id');
 
-            if ($venta->create()) {
-                Flash::valid("Venta registrada correctamente");
-                $id_venta = $venta->id;
-                $detalles = Input::post('detalles_ventas');
+        if ($cliente_id !== null && $cliente_id != $cliente_actual) {
+            // No borres el carrito anterior, simplemente actualiza el cliente actual
+            Session::set('cliente_id', $cliente_id);
+            $cliente_seleccionado = $cliente_id;
+        } else {
+            $cliente_seleccionado = $cliente_actual;
+        }
 
-                foreach ($detalles as $detalle) {
-                    $nuevo_detalle = new DetallesVentas();
-                    $nuevo_detalle->ventas_id = $id_venta;
-                    $nuevo_detalle->productos_id = $detalle['productos_id'];
-                    $nuevo_detalle->cantidad = $detalle['cantidad'];
-                    $nuevo_detalle->precio = $detalle['precio']; // asegúrate de enviar esto desde el formulario
 
-                    if ($nuevo_detalle->create()) {
-                        // Opcional: puedes validar stock aquí si quieres
+
+        // Resto del código permanece igual...
+        $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
+
+        if (!Session::has($carrito_key)) {
+            Session::set($carrito_key, []);
+        }
+        $carrito = Session::get($carrito_key);
+
+// Debug: Verificar contenido del carrito
+        error_log("Contenido del carrito para cliente $cliente_seleccionado: " . print_r($carrito, true));
+        if ($cliente_id !== null) {
+            Session::set('cliente_id', $cliente_id);
+        }
+        if ($accion === 'finalizar') {
+            $clientes_id = $ventas_post['clientes_id'] ?? null;
+            $empleados_id = $ventas_post['empleados_id'] ?? Session::get('empleado_id');
+            $metodos_pago_id = $ventas_post['metodos_pago_id'] ?? null;
+            $comentario = $ventas_post['comentario'] ?? null;
+
+            // Obtener el carrito actual
+            $carrito_key = 'carrito_venta_cliente_' . $clientes_id;
+            $carrito = Session::get($carrito_key, []);
+
+            if (!$clientes_id || !$empleados_id || empty($carrito) || !$metodos_pago_id) {
+                Flash::error("Faltan datos para finalizar la venta o el carrito está vacío");
+                error_log("Carrito vacío al finalizar venta. Contenido: " . print_r($carrito, true));
+                return Redirect::to("ventas/registrar/{$clientes_id}");
+            }
+            // Resto del código...
+        }
+        $buscar_cliente = Input::get('buscar_cliente') ?? '';
+        $buscar_producto = Input::get('buscar_producto') ?? '';
+
+        $this->clientes = $buscar_cliente
+            ? (new Clientes())->find("activo = 1 AND nombre LIKE '%$buscar_cliente%'")
+            : (new Clientes())->find("activo = 1");
+
+        $this->productos = $buscar_producto
+            ? (new Productos())->find("stock > 0 AND nombre LIKE '%$buscar_producto%'")
+            : (new Productos())->find("stock > 0");
+
+        $this->metodos_pago = (new MetodosPago())->find();
+
+        $cliente_seleccionado = Session::get('cliente_id');
+        $this->cliente_seleccionado = $cliente_seleccionado;
+        $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
+
+        if (!Session::has($carrito_key)) {
+            Session::set($carrito_key, []);
+        }
+
+        $carrito = Session::get($carrito_key);
+
+        if (Input::hasPost('accion')) {
+            $accion = Input::post('accion');
+            $ventas_post = Input::post('ventas') ?? [];
+
+            if (!empty($ventas_post['clientes_id'])) {
+                Session::set('cliente_id', $ventas_post['clientes_id']);
+                $cliente_seleccionado = $ventas_post['clientes_id'];
+                $this->cliente_seleccionado = $cliente_seleccionado;
+                $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
+                if (!Session::has($carrito_key)) {
+                    Session::set($carrito_key, []);
+                }
+                $carrito = Session::get($carrito_key);
+            }
+
+            if ($accion === 'agregar') {
+                $producto_id = Input::post('producto_id');
+                $cantidad = (int)Input::post('cantidad');
+
+                if ($producto_id && $cantidad > 0) {
+                    $producto = (new Productos())->find_first($producto_id);
+                    if ($producto && $producto->stock >= $cantidad) {
+                        $found = false;
+                        foreach ($carrito as &$item) {
+                            if ($item['producto']->id == $producto->id) {
+                                $item['cantidad'] += $cantidad;
+                                $item['subtotal'] = $item['cantidad'] * $producto->precio;
+                                $found = true;
+                                break;
+                            }
+                        }
+                        unset($item);
+
+                        if (!$found) {
+                            $carrito[] = [
+                                'producto' => $producto,
+                                'cantidad' => $cantidad,
+                                'subtotal' => $cantidad * $producto->precio,
+                            ];
+                        }
+
+                        Session::set($carrito_key, $carrito);
+                        Flash::valid("Producto agregado al carrito");
+                    } else {
+                        Flash::error("Producto no válido o stock insuficiente");
+                    }
+                } else {
+                    Flash::error("Debe seleccionar producto y cantidad válida");
+                }
+                return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
+            }
+
+            if ($accion === 'eliminar') {
+                $index = Input::post('index');
+                if (isset($carrito[$index])) {
+                    unset($carrito[$index]);
+                    $carrito = array_values($carrito);
+                    Session::set($carrito_key, $carrito);
+                    Flash::valid("Producto eliminado del carrito");
+                } else {
+                    Flash::error("Índice de producto inválido");
+                }
+                return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
+            }
+
+            if ($accion === 'finalizar') {
+                $clientes_id = $ventas_post['clientes_id'] ?? null;
+                $empleados_id = $ventas_post['empleados_id'] ?? Session::get('empleado_id');
+                $metodos_pago_id = $ventas_post['metodos_pago_id'] ?? null;
+                $comentario = $ventas_post['comentario'] ?? null;
+
+                if (!$clientes_id || !$empleados_id || empty($carrito) || !$metodos_pago_id) {
+                    Flash::error("Faltan datos para finalizar la venta o el carrito está vacío");
+                    return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
+                }
+
+                $total_carrito = array_reduce($carrito, fn($carry, $item) => $carry + $item['subtotal'], 0);
+                $metodo = (new MetodosPago())->find_first($metodos_pago_id);
+                $nombre_metodo = $metodo ? $metodo->nombre : 'pendiente';
+
+                $venta = new Ventas();
+
+                if (!empty($carrito)) {
+                    $venta->productos_id = $carrito[0]['producto']->id;
+                } else {
+                    $venta->productos_id = null;
+                }
+
+                $venta->usuario_id = Auth::get('id');
+                $venta->clientes_id = $clientes_id;
+                $venta->metodos_pago_id = $metodos_pago_id;
+                $venta->fecha = date('Y-m-d H:i:s');
+                $venta->total = $total_carrito;
+
+// 🔻 Obtener el adeudo actual del cliente y sumarlo
+                $cliente = (new Clientes())->find_first($clientes_id);
+                if ($cliente) {
+                    $nuevo_adeudo = (float)$cliente->adeudo + (float)$total_carrito;
+                    $venta->por_pagar = $nuevo_adeudo;
+                }
+
+                $venta->comentario = $comentario;
+                $venta->forma_pago = $nombre_metodo ?? 'PPP';
+                $venta->cancelada = 0;
+                $venta->status = 'completada';
+                $venta->created_at = date('Y-m-d H:i:s');
+                $venta->updated_in = date('Y-m-d H:i:s');
+
+                if (!$venta->save()) {
+                    $errors = $venta->get_messages();
+                    Flash::error("Error al guardar venta: " . implode(", ", $errors));
+                    return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
+                }
+
+                foreach ($carrito as $item) {
+                    $detalle = new Detalles_ventas(); // corregido el nombre del modelo
+                    $detalle->descuento = 0;
+                    $detalle->ventas_id = $venta->id;
+                    $detalle->productos_id = $item['producto']->id;
+                    $detalle->descripcion = $item['producto']->nombre;
+                    $detalle->cantidad = $item['cantidad'];
+                    $detalle->unitario = $item['producto']->precio;
+                    $detalle->subtotal = $detalle->cantidad * $detalle->unitario;
+                    $detalle->importe = $detalle->subtotal - $detalle->descuento;
+                    $detalle->save();
+
+                    // 🔽 REGISTRO EN productos_log
+                    $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
+                    foreach ($detalles as $detalle) {
+                        $log = new ProductosLog([
+                            'producto_id' => $detalle->productos_id,
+                            'entrada' => 0,
+                            'salida' => $detalle->cantidad,
+                            'venta_id' => $venta->id,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ]);
+                        if (!$log->create()) {
+                            throw new Exception("Error al registrar en productos_log para el producto {$detalle->productos_id}");
+                        }
+                    }
+
+
+
+                    // 🔻 Descontar stock
+                    $producto = (new Productos())->find_first($item['producto']->id);
+                    if ($producto) {
+                        $producto->stock -= $item['cantidad'];
+                        $producto->save();
                     }
                 }
 
+                $cliente = (new Clientes())->find_first($clientes_id);
+                if ($cliente) {
+                    $cliente->adeudo = (float)$cliente->adeudo + (float)$total_carrito;
+
+                    $cliente->adeudo += $total_carrito;
+                    $cliente->save();
+                }
+
+                Session::delete($carrito_key);
+                Flash::valid("Venta registrada con éxito");
+                return Redirect::to('ventas/index');
+            }
+        }
+
+        $this->carrito = $carrito;
+        $this->total_carrito = array_reduce($carrito, fn($carry, $item) => $carry + $item['subtotal'], 0);
+        $this->buscar_cliente = $buscar_cliente;
+        $this->buscar_producto = $buscar_producto;
+    }
+
+    public function guardarCarritoAction() {
+        if ($this->request->isPost()) {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            // Aquí implementarías la lógica para guardar el carrito temporalmente
+            // asociado al cliente actual antes de cambiar
+
+            try {
+                // Ejemplo: guardar en sesión o base de datos temporal
+                Session::set('carrito_temporal_' . $data['cliente_actual'], $data['carrito']);
+
+                return json_encode([
+                    'success' => true,
+                    'message' => 'Carrito guardado temporalmente'
+                ]);
+            } catch (Exception $e) {
+                return json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
             }
         }
     }
-//cliente= x(seleccion de clientes)
 
-
-
-    public function registra()
+    public function cancelar($cliente_id = null)
     {
-        if (input::hasPost('ventas')) {
-            $venta = new ventas(Input::post('ventas'));
-            if ($venta->create()) {
-                Flash::valid("venta registrado");
-                Input::delete();
-            }
+        if ($cliente_id !== null) {
+            $carrito_key = 'carrito_venta_cliente_' . $cliente_id;
+            Session::delete($carrito_key);
+            Session::delete('cliente_id');
+            Flash::valid("Venta cancelada y carrito limpiado");
         } else {
-            Flash::error("Error al registrar el venta");
+            Flash::error("Cliente no especificado para cancelar");
+        }
+        return Redirect::to("ventas/registrar");
+    }
+
+    public function finalizarVenta($datosVenta) {
+        // Crear la venta
+        $venta = new Ventas();
+        $venta->clientes_id = $datosVenta['clientes_id'];
+        $venta->metodos_pago_id = $datosVenta['metodos_pago_id'];
+        $venta->total = $datosVenta['total'];
+        $venta->fecha = $datosVenta['fecha'];
+        $venta->comentario = $datosVenta['comentario'];
+
+        if (!$venta->save()) {
+            Flash::error('No se pudo guardar la venta.');
+            return;
         }
 
+        // Aquí creamos el registro en pagos_items (o tabla equivalente)
+        $pagoItem = new PagosItems();
+        $pagoItem->venta_id = $venta->id;
+        $pagoItem->cliente_id = $venta->clientes_id;
+        $pagoItem->monto_pagado = 0; // 0 si es crédito, o total si pago completo
+        $pagoItem->saldo_pendiente = $venta->total; // saldo inicial
+        $pagoItem->fecha_pago = date('Y-m-d H:i:s');
+
+        if (!$pagoItem->save()) {
+            Flash::error('No se pudo crear el registro de pago inicial.');
+            return;
+        }
+
+        // O si es pago contado, monto_pagado = total, saldo_pendiente = 0
+
+        Flash::valid('Venta y pago registrado correctamente');
+        Redirect::to('ventas/index');
     }
+
 }
-
-
-
-
-
-
-

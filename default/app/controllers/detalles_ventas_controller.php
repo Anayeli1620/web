@@ -4,7 +4,7 @@ class DetallesVentasController extends AppController
 {
     public function index()
     {
-        $this->detalles_ventas = (new DetallesVentas())->find("columns: 
+        $this->detalles_ventas = (new Detalles_ventas())->find("columns: 
             detalles_ventas.*,
             ventas.fecha as venta_fecha,
             productos.nombre as producto_nombre,
@@ -17,7 +17,7 @@ class DetallesVentasController extends AppController
 
     public function show($id)
     {
-        $this->detalles_ventas = (new DetallesVentas())->find("columns:
+        $this->detalles_ventas = (new Detalles_ventas())->find("columns:
             detalles_ventas.*,
             productos.nombre as producto_nombre,
             productos.precio as producto_precio_actual,
@@ -32,7 +32,7 @@ class DetallesVentasController extends AppController
 
 
         // Obtener todos los detalles de la venta (productos asociados)
-        $this->detalles_ventas = (new DetallesVentas())->find("ventas_id = {$id}");
+        $this->detalles_ventas = (new Detalles_ventas())->find("ventas_id = {$id}");
         // Si no se encuentran detalles, mostrar mensaje de error
         if (empty($this->detalles_ventas)) {
             Flash::error('No se encontraron productos para esta venta.');
@@ -86,14 +86,43 @@ class DetallesVentasController extends AppController
     }
     public function registrar()
     {
-        if (input::hasPost('detalles_ventas')) {
-            $detalles_ventas = new DetallesVentas(Input::post('detalles_ventas'));
-            if ($detalles_ventas->create()) {
-                Flash::valid("detalles_ventas registrado");
-                Input::delete();
+        $this->empleados = (new Empleados())->find();
+
+        // Si se envió el formulario con un empleado seleccionado
+        if (Input::hasPost('empleado_id')) {
+            $empleado_id = Input::post('empleado_id');
+            Session::set('empleado_seleccionado', $empleado_id); // Guardamos en sesión
+            Redirect::to("detalles_ventas/registrar"); // Redirigimos para evitar reenvío de formulario
+        }
+
+        // Si hay un empleado en sesión, cargamos sus ventas
+        if (Session::has('empleado_seleccionado')) {
+            $empleado_id = Session::get('empleado_seleccionado');
+            $this->empleado_seleccionado = $empleado_id;
+
+            $ventas = (new Ventas())->find("conditions: empleados_id = $empleado_id");
+            $detalles = [];
+
+            foreach ($ventas as $venta) {
+                $detalles_venta = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
+                foreach ($detalles_venta as $detalle) {
+                    $producto = $detalle->getProducto();
+                    $detalles[] = [
+                        'venta_id' => $venta->id,
+                        'fecha' => $venta->fecha,
+                        'producto' => $producto ? $producto->nombre : 'Producto eliminado',
+                        'descripcion' => $detalle->descripcion,
+                        'cantidad' => $detalle->cantidad,
+                        'unitario' => $detalle->unitario,
+                        'subtotal' => $detalle->subtotal,
+                        'descuento' => $detalle->descuento,
+                        'importe' => $detalle->importe,
+                    ];
+                }
             }
-        } else {
-            Flash::error("Error al registrar el detalles_ventas");
+
+            $this->detalles_empleado = $detalles;
         }
     }
+
 }

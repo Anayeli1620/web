@@ -13,7 +13,11 @@ class ProductosController extends AppController
         LEFT JOIN categorias ON productos.categorias_id = categorias.id
     ");
     }
-
+    public function getPrecio($id)
+    {
+        $producto = (new Productos())->find($id);
+        View::json(['precio' => $producto->precio]);
+    }
     public function show($id)
     {
         View::template("plantilla");
@@ -29,7 +33,7 @@ class ProductosController extends AppController
         $this->categoria = $this->productos->getCategoria();
 
         // Obtener detalles de ventas relacionados al producto
-        $detalles_ventas = (new DetallesVentas())->find("productos_id = {$this->productos->id}");
+        $detalles_ventas = (new Detalles_ventas())->find("productos_id = {$this->productos->id}");
 
         $this->ventas = [];
         foreach ($detalles_ventas as $detalle) {
@@ -42,7 +46,7 @@ class ProductosController extends AppController
         // Cálculo de productos más vendidos
         $this->productos_mas_vendidos = [];
         foreach ($this->ventas as $venta) {
-            $detalles = (new DetallesVentas())->find("ventas_id = {$venta->id}");
+            $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
             foreach ($detalles as $detalle) {
                 $producto = (new Productos())->find_first($detalle->productos_id);
                 if ($producto) {

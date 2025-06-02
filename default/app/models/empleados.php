@@ -10,6 +10,7 @@ class Empleados extends ActiveRecord
          * Nombre de la columna de relacion
          */
         $this->has_many('ventas', 'model: Ventas', 'fk: empleados_id');
+        $this->has_many('ventas');
 
 
         // Validación para el nombre

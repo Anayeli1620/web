@@ -3,10 +3,11 @@
 <div class="container">
     <div class="row">
         <!-- Tarjetas de venta en la parte izquierda -->
+        <!-- Tarjetas de cliente en la parte izquierda -->
         <div class="col-md-6">
-            <?= View::partial("ventas/card", null, ["ventas" => $ventas, "total_unidades" => $total_unidades, "total_ingresos" => $total_ingresos, "ultima_fecha" => $ultima_fecha]) ?>
-
+            <?= View::partial("ventas/card", null, ["venta" => $venta]) ?>
         </div>
+
 
         <!-- Detalles de la venta en la parte derecha -->
         <div class="col-md-6 d-flex flex-column align-items-end">

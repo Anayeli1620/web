@@ -12,6 +12,8 @@
                     <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?></p>
                     <p class="card-text"><strong>Método de Pago:</strong> <?= $pago->metodo_pago_id?></p>
                     <p class="card-text"><strong>Total:</strong> $<?= number_format((float)$total_ingresos, 2) ?></p>
+                    <p class="card-text"><strong>Comentario:</strong> <?= $pago->comentario?></p>
+
                     <img src="<?=URL_APP?>/public/img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
 
                 </div>
@@ -32,8 +34,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td>$<?= number_format($total_ingresos, 2) ?></td>
-                            <!-- Asegúrate de que $ventas esté inicializado -->
+                            <td>$<?= number_format((float)$total_ingresos, 2) ?></td>                            <!-- Asegúrate de que $ventas esté inicializado -->
                             <td><?= count($ventas) ?></td>
                             <td><?= count($productos_mas_vendidos) ?></td>
                         </tr>

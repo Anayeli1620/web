@@ -14,6 +14,7 @@ View::template("plantilla");
         <th class="hidden-id">id</th> <!-- Ocultar encabezado -->
         <th>nombre</th>
         <th>email</th>
+        <th>email</th>
         <th>telefono</th>
 
     </tr>
@@ -25,6 +26,7 @@ View::template("plantilla");
             <td><a href="<?=URL_APP?>/empleados/show/<?= $p->id ?>"><?= $p->nombre ?></a>
 
             <td><?= $p->email ?></td>
+            <td><?= $p->contraseña ?></td>
             <td><?= $p->telefono ?></td>
 
         </tr>

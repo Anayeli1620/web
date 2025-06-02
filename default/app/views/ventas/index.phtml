@@ -2,7 +2,7 @@
 View::template("plantilla");
 ?>
 
-<h1>Ventas</h1>
+<h1>ventas</h1>
 <a href="<?=URL_APP?>/ventas/registrar" class="btn btn-primary">Registrar Categoría</a>
 <style>
     .hide-id { display: none; }
@@ -21,16 +21,16 @@ View::template("plantilla");
     </tr>
     </thead>
     <tbody>
-    <?php foreach ($Ventas as $ven): ?>
+    <?php foreach ($ventas as $ven): ?>
         <tr>
             <td class="hide-id"><?= $ven->id ?></td>
             <td>
                 <a href="<?=URL_APP?>/ventas/show/<?= $ven->id ?>">
-                    <?= $ven->cliente_nombre ?? 'N/A' ?> <!-- Nombre del cliente -->
+                    <?= $ven->cliente_nombre  ?> <!-- Nombre del cliente -->
                 </a>
             </td>
-            <td><?= $ven->empleado_nombre ?? 'N/A' ?></td> <!-- Nombre del empleado -->
-            <td><?= $ven->metodo_pago_nombre ?? 'N/A' ?></td> <!-- Método de pago -->
+            <td><?=  $ven->empleados->nombre ?></td>
+            <td><?=$ven->metodo_pago_id->nombre  ?></td>
             <td><?= $ven->fecha ?></td>
             <td><?= $ven->total ?></td>
             <td><?= $ven->por_pagar ?></td>

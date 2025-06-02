@@ -18,6 +18,29 @@
  * '/prueba/ruta1/*' => 'prueba/ruta2/*',
  * '/prueba/ruta2/*' => 'prueba/ruta3/*',
  */
+
+
+/**
+ * Configuración de rutas para el módulo de ventas
+ */
+
+// Ruta para el registro inicial de ventas
+Router::connect('/ventas/registrar', 'ventas/registrar');
+
+// Ruta para el carrito de compras
+Router::connect('/ventas/nueva/:id', 'ventas/nueva');
+
+// Rutas para acciones del carrito
+Router::connect('/ventas/agregar_producto/:id', 'ventas/agregar_producto');
+Router::connect('/ventas/eliminar_producto/:id', 'ventas/eliminar_producto');
+Router::connect('/ventas/aplicar_descuento/:id', 'ventas/aplicar_descuento');
+
+// Rutas para finalizar/cancelar ventas
+Router::connect('/ventas/finalizar/:id', 'ventas/finalizar');
+Router::connect('/ventas/cancelar/:id', 'ventas/cancelar');
+
+// Ruta principal del módulo
+Router::connect('/ventas', 'ventas/index');
 return [
     'routes' => [
         /**

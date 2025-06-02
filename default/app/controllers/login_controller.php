@@ -24,8 +24,15 @@ class LoginController extends Controller
             $pwd = md5($login["password"]);
 
             // iniciamos el Auth, mi modelo se llama Usuarios, asi como la tabla
-            $auth = new Auth("model", "class: Usuarios", "email: " . $email, "password: " . $pwd);
+            $auth = new Auth("model", "class: empleados", "email: " . $email, "password: " . $pwd);
             if ($auth->authenticate()) {
+
+                $empleado = (new Empleados())->find_first("email = '$email'");
+
+                // Guardar los datos en la sesión (forma correcta en KumbiaPHP)
+                Session::set('empleado_id', $empleado->id);
+                Session::set('empleado_nombre', $empleado->nombre);
+                Session::set('empleado_email', $empleado->email);
                 // Si el usuario es valido, lo mandamos al index
                 // de la aplicacion ya logueado
                 Redirect::to("/perfil/");

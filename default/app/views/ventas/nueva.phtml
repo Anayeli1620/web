@@ -1,73 +1,259 @@
+<div class="container mt-4">
+    <h3 class="mb-4">
+        <i class="fas fa-shopping-cart"></i> Carrito de Compra
+        <?= $venta->id ? '#' . $venta->id : '' ?>
+    </h3>
 
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Datos del Cliente</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nombre:</strong> <?= htmlspecialchars($cliente->nombre) ?></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($venta->fecha)) ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <?php $items = $venta->get_items(); ?>
 
-<?php View::template("plantilla"); ?>
+    <?php if (empty($items)): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-circle"></i> El carrito está vacío. Agrega productos para continuar.
+        </div>
+    <?php endif; ?>
 
-<table class="table table-striped table-hover" >
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Agregar Productos</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="<?= PUBLIC_PATH ?>ventas/agregar_producto/<?= $venta->id ?>">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <select name="producto_id" class="form-select" required>
+                            <option value="">Seleccione producto</option>
+                            <?php foreach ($productos as $p): ?>
+                                <option value="<?= $p->id ?>">
+                                    <?= htmlspecialchars($p->nombre) ?> -
+                                    $<?= number_format($p->precio, 2) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="cantidad" class="form-control" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="descuento" class="form-control" value="0" min="0" max="100" step="0.01" placeholder="% Desc">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="descripcion" class="form-control" placeholder="Descripción adicional">
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-plus"></i> Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
+                <?php if (!empty($items)): ?>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Descripción</th>
+                                <th>P. Unitario</th>
+                                <th>Cantidad</th>
+                                <th>Descuento %</th>
+                                <th>Subtotal</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($items as $item): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($item->descripcion) ?></td>
+                                    <td>$<?= number_format($item->unitario, 2) ?></td>
+                                    <td><?= $item->cantidad ?></td>
+                                    <td><?= number_format($item->descuento, 2) ?>%</td>
+                                    <td>$<?= number_format($item->subtotal, 2) ?></td>
+                                    <td>
+                                        <a href="<?= PUBLIC_PATH ?>ventas/eliminar_producto/<?= $item->id ?>"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('¿Eliminar este producto?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr class="table-active">
+                                <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                <td colspan="3">
+                                    <?php
+                                    $total = isset($venta->total) && is_numeric($venta->total) ? (float)$venta->total : 0;
+                                    if ($total == 0 && !empty($items)) {
+                                        foreach ($items as $item) {
+                                            if (isset($item->subtotal) && is_numeric($item->subtotal)) {
+                                                $total += (float)$item->subtotal;
+                                            }
+                                        }
+                                    }
+                                    echo '$' . number_format($total, 2);
+                                    ?>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
 
-<h1 class="text-center text-primary my-4">Ventas</h1>
-<h2 class="text-center text-secondary"><?= $clientes->razon_social ?></h2>
+<!-- En ventas/nueva -->
+<?php if (!empty($items)): ?>
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" action="<?= PUBLIC_PATH ?>ventas/finalizar/<?= $venta->id ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pago *</label>
+                        <select name="metodos_pago_id" class="form-select" id="metodo-pago-select" required>
+                            <option value="">Seleccione...</option>
+                            <?php foreach ((new MetodosPago())->find() as $mp): ?>
+                                <option value="<?= $mp->id ?>" data-tipo="<?= htmlspecialchars(strtolower($mp->nombre)) ?>">
+                                    <?= htmlspecialchars($mp->nombre) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-<?php if ($clientes == null): ?>
-    <div class="alert alert-light text-center" style="background-color: #f8bbd0; color: #c2185b;">
-        <?= View::partial("ventas/seleccionar_cliente") ?>
+                    <!-- Campos dinámicos según método de pago -->
+                    <div id="campos-efectivo" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Monto Recibido *</label>
+                            <input type="number" name="monto_recibido" class="form-control" step="0.01" min="<?= $total ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cambio:</label>
+                            <input type="text" class="form-control" id="cambio-display" readonly>
+                        </div>
+                    </div>
+
+                    <div id="campos-tarjeta" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Número de Tarjeta *</label>
+                            <input type="text" name="tarjeta_numero" class="form-control" maxlength="16">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha Vencimiento *</label>
+                                <input type="text" name="tarjeta_vence" class="form-control" placeholder="MM/YY">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CVV *</label>
+                                <input type="text" name="tarjeta_cvv" class="form-control" maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="campos-debito" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Número de Tarjeta *</label>
+                            <input type="text" name="tarjeta_numero" class="form-control" maxlength="16">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">PIN *</label>
+                            <input type="password" name="tarjeta_pin" class="form-control" maxlength="4">
+                        </div>
+                    </div>
+
+                    <div id="campos-transferencia" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Número de Transferencia *</label>
+                            <input type="text" name="transferencia_numero" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="campos-paypal" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Email de PayPal *</label>
+                            <input type="email" name="paypal_email" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="campos-cheque" class="metodo-campos" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Número de Cheque *</label>
+                            <input type="text" name="cheque_numero" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Banco Emisor *</label>
+                            <input type="text" name="cheque_banco" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Comentarios (Opcional)</label>
+                        <textarea name="comentario" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle"></i> Finalizar Venta
+                        </button>
+
+                        <a href="<?= PUBLIC_PATH ?>ventas/cancelar/<?= $venta->id ?>" class="btn btn-danger" onclick="return confirm('¿Está seguro de cancelar esta venta?')">
+                            <i class="fas fa-times-circle"></i> Cancelar Venta
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 <?php endif; ?>
 
+<script>
+    $(document).ready(function() {
+        // Mostrar campos según método de pago seleccionado
+        $('#metodo-pago-select').change(function() {
+            $('.metodo-campos').hide();
 
-<?php if ($venta != null && $venta->getItems()): ?>
-    <?= View::partial("ventas/tablas", ['venta' => $venta]) ?>
-<?php else: ?>
-    <div class="alert alert-info text-center">No hay productos en esta venta.</div>
-<?php endif; ?>
+            const metodo = $(this).find('option:selected').data('tipo');
+            let campoId = '';
 
+            if (metodo.includes('efectivo')) {
+                campoId = 'campos-efectivo';
+            } else if (metodo.includes('credito') || metodo.includes('crédito') || metodo.includes('diners') || metodo.includes('dinner')) {
+                campoId = 'campos-tarjeta';
+            } else if (metodo.includes('debito') || metodo.includes('débito')) {
+                campoId = 'campos-debito';
+            } else if (metodo.includes('transferencia')) {
+                campoId = 'campos-transferencia';
+            } else if (metodo.includes('paypal')) {
+                campoId = 'campos-paypal';
+            } else if (metodo.includes('cheque')) {
+                campoId = 'campos-cheque';
+            }
 
-<!-- Formulario y tabla -->
-<div class="row">
-    <!-- Tabla de productos seleccionados -->
-    <div class="col-md-8">
-        <?php if ($venta != null): ?>
-            <h4>Productos en la Venta</h4>
-            <table id="myTable" class="table table-striped table-bordered">
-                <thead class="thead-dark">
-                <tr>
-                    <th>Cant</th>
-                    <th>Descripción</th>
-                    <th>Unitario</th>
-                    <th>Importe</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($venta->getItems() as $i): ?>
-                    <tr>
-                        <td><?= $i->cantidad ?></td>
-                        <td><?= $i->descripcion ?></td>
-                        <td><?= $i->unitario ?></td>
-                        <td><?= $i->importe ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <div class="alert alert-info text-center">No hay productos en esta venta.</div>
-        <?php endif; ?>
-        <script>
-            let table = new DataTable('#myTable', {
-                // config options...
-            });
-        </script>
-    </div>
-    <script>
-        // Estilo para los encabezados
-        $('#myTable thead').css({
-            'background-color': '#e1bee7',  // color de fondo de encabezados rosita
-            'color': '#880e4f'               // color del texto en encabezados rosado intenso
+            if (campoId) $('#' + campoId).show();
         });
-    </script>
 
-</div>
+        // Calcular cambio para efectivo
+        $('input[name="monto_recibido"]').on('input', function() {
+            const recibido = parseFloat($(this).val()) || 0;
+            const total = <?= $total ?>;
+            const cambio = recibido - total;
 
-</table>
-
-
+            $('#cambio-display').val(cambio >= 0 ? '$' + cambio.toFixed(2) : 'Monto insuficiente');
+        });
+    });
+</script>

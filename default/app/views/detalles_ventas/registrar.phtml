@@ -1,43 +1,53 @@
 <?= View::content() ?>
-<?= Form::open() ?>
 
-<label>id</label>
-<?= Form::number('detalles_ventas.id',["class"=> "form-control", "title"=>"id de detalles_ventas"]) ?>
-<label>ventas_id</label>
-<?= Form::number('detalles_ventas.ventas_id',["class"=> "form-control", "title"=>"ventas_id de detalles_ventas"]) ?>
-<label>productos_id</label>
-<?= Form::number('detalles_ventas.productos_id',["class"=> "form-control", "title"=>"productos_id de detalles_ventas"]) ?>
-<label>descripcion</label>
-<?= Form::text('detalles_ventas.descripcion',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
-<label>cantidad</label>
-<?= Form::number('detalles_ventas.cantidad',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
-<<label>unitario</label>
-<?= Form::number('detalles_ventas.unitario',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
-<label>subtotal</label>
-<?= Form::number('detalles_ventas.subtotal',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
-<label>descuento</label>
-<?= Form::number('detalles_ventas.descuento',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
-<label>importe</label>
-<?= Form::number('detalles_ventas.importe',["class"=> "form-control", "title"=>"cantidad de detalles_ventas"]) ?>
+<h3>Consultar ventas por empleado</h3>
 
-
-<input type="file"
-       class="filepond"
-       name="filepond"
-       multiple
-       data-allow-reorder="true"
-       data-max-file-size="3MB"
-       data-max-files="3"
-       accept="image/png, image/jpeg, image/gif,image/jpg">
-
-<!-- Para los botones -->
-<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
-<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
-<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<?= Form::open("detalles_ventas/registrar") ?>
+<label>Empleado</label>
+<select name="empleado_id" class="form-control" required>
+    <option value="">Selecciona un empleado</option>
+    <?php foreach ($empleados as $emp): ?>
+        <option value="<?= $emp->id ?>" <?= isset($empleado_seleccionado) && $empleado_seleccionado == $emp->id ? 'selected' : '' ?>>
+            <?= $emp->nombre ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+<br>
+<button class="btn btn-primary" type="submit">Ver ventas</button>
 <?= Form::close() ?>
-<!-- Script para limpiar formulario -->
-<script>
-    function limpiarFormulario() {
-        document.querySelector('form').reset();
-    }
-</script>
+
+<?php if (isset($detalles_empleado) && count($detalles_empleado) > 0): ?>
+    <h4 class="mt-4">Ventas realizadas por el empleado</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Venta ID</th>
+            <th>Fecha</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+            <th>Descuento</th>
+            <th>Importe</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($detalles_empleado as $detalle): ?>
+            <tr>
+                <td><?= $detalle['venta_id'] ?></td>
+                <td><?= $detalle['fecha'] ?></td>
+                <td><?= $detalle['producto'] ?></td>
+                <td><?= $detalle['descripcion'] ?></td>
+                <td><?= $detalle['cantidad'] ?></td>
+                <td>$<?= number_format($detalle['unitario'], 2) ?></td>
+                <td>$<?= number_format($detalle['subtotal'], 2) ?></td>
+                <td>$<?= number_format($detalle['descuento'], 2) ?></td>
+                <td>$<?= number_format($detalle['importe'], 2) ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php elseif (isset($empleado_seleccionado)): ?>
+    <div class="alert alert-warning mt-4">Este empleado no tiene ventas registradas.</div>
+<?php endif; ?>

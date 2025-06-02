@@ -23,7 +23,7 @@
                 if (!empty($clientes->getVentas())):
                     foreach ($clientes->getVentas() as $venta):
                         // Obtienes primero el detalle de la venta
-                        $detalleVenta = (new DetallesVentas())->find_first("ventas_id = {$venta->id}");
+                        $detalleVenta = (new Detalles_ventas())->find_first("ventas_id = {$venta->id}");
 
                         if ($detalleVenta) {
                             // Ahora sí obtienes el producto

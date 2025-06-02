@@ -1,15 +1,18 @@
 <div class="card" style="width: 300rem;">
     <div class="card-body">
-        <h5 class="card-title">Venta: <?= $ventas->id ?></h5>
-        <h6 class="card-subtitle">Cliente: <?= $ventas->cliente->nombre ?></h6>
-        <p class="card-text">Método de pago: <?= $ventas->metodo->nombre ?></p>
-        <p class="card-text">total: <?= $ventas->total ?></p>
-        <p class="card-text">por_pagar: <?= $ventas->por_pagar ?></p>
-        <p class="card-text">Fecha: <?= $ventas->fecha ?></p>
-        <p class="card-text">comentario: <?= $ventas->comentario ?></p>
+        <h5 class="card-title">Venta: <?= $venta->id ?></h5>
+        <p class="card-text">productos_id: <?= $venta->productos_id ?></p>
+        <p class="card-text">clientes_id: <?= $venta->clientes_id ?></p>
+        <p class="card-text">empleados_id: <?= $venta->empleados_id ?></p>
+        <p class="card-text">metodos_pago_id: <?= $venta->metodos_pago_id ?></p>
+        <p class="card-text">fecha: <?= $venta->fecha ?></p>
+        <p class="card-text">total: <?= $venta->total ?></p>
+        <p class="card-text">por_pagar: <?= $venta->por_pagar ?></p>
+        <p class="card-text">comentario: <?= $venta->comentario ?></p>
+        <p class="card-text">forma_pago: <?= $venta->forma_pago ?></p>
+        <p class="card-text">cancelada: <?= $venta->cancelada ?></p>
+        <p class="card-text">status: <?= $venta->status ?></p>
 
-
-        <!-- Imagen del producto más vendido o algún detalle relevante -->
-        <img src="<?= PUBLIC_PATH ?>img/ventas/<?= $ventas->id ?>.jpg" width="250px" alt="Imagen de la venta">
+        <img src="<?= PUBLIC_PATH ?>img/ventas/<?= $venta->id ?>.jpg" width="250px">
     </div>
 </div>

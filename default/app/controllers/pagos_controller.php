@@ -1,14 +1,9 @@
-
 <?php
 
-
 class PagosController extends AppController
-
 {
 
-
-
-       public function index()
+    public function index()
     {
         $this->pagos = (new Pagos())->find("columns: 
             pagos.*,
@@ -20,49 +15,8 @@ class PagosController extends AppController
         ");
     }
 
-    // ... (el resto de tus métodos permanecen igual)
-
-    public function nueva($cliente_id = null)
-    {
-        $this->cliente = null;
-        $this->ventas = null;
-
-        if (Input::hasGet("cliente")) {
-            $cliente_id = Input::get("cliente");
-            $this->cliente = (new Clientes())->find($cliente_id);
-            Redirect::toAction("nuevo/{$cliente_id}");
-        }
-
-        if($cliente_id != null){
-            $this->cliente = (new Clientes())->find($cliente_id);
-        }
-
-        if ($this->cliente !== null):
-            $this->ventas = (new Ventas())->por_pagar($cliente_id);
-        endif;
-    }
-
-    //parametro get:
-    public function finalizar($cliente_id = null){
-        $this->cliente = (new Clientes())->find($cliente_id);
-        $ventas= Input::get("ventas");
-        $this->ventas_a_pagar=[];
-        $this->total_a_abono=0;
-        foreach ($ventas as $k => $v){
-            if ($v !== "") {
-                $item = (new Ventas())->find($k);
-                $item->a_abonar = $v;
-                $this->total_a_abonar += $v;
-                $this->ventas_a_pagar[] = $item;
-            }
-
-        }
-    }
-
-
     public function show($id)
     {
-        // Obtener el pago por su ID
         $this->pago = (new Pagos())->find_first($id);
 
         if (!$this->pago) {
@@ -70,43 +24,27 @@ class PagosController extends AppController
             return Redirect::to('pagos/index');
         }
 
-        // Obtener cliente y método de pago relacionados
         $this->cliente = $this->pago->cliente;
         $this->metodo_pago = $this->pago->metodo_pago;
-
-        // Calcular el total de ingresos del pago
         $this->total_ingresos = $this->pago->total;
 
-        // Asegúrate de inicializar $ventas correctamente
         $this->ventas = (new Ventas())->find("metodos_pago_id = {$this->pago->metodo_pago_id}") ?: [];
 
-        // Generar datos para las gráficas
-        $ventas_por_mes = $this->calcularVentasPorMes();
-        $productos_mas_vendidos = $this->calcularProductosMasVendidos();
-
-        // Pasar los datos a la vista
-        $this->ventas_por_mes = $ventas_por_mes;
-        $this->productos_mas_vendidos = $productos_mas_vendidos;
+        $this->ventas_por_mes = $this->calcularVentasPorMes();
+        $this->productos_mas_vendidos = $this->calcularProductosMasVendidos();
     }
 
-
-
-    // Función para calcular ventas por mes
     private function calcularVentasPorMes()
     {
-        // Ejemplo básico de ventas por mes, ajusta si tienes otro método de obtener las ventas
-        $ventas_por_mes = [
+        return [
             '2023-01' => 5000,
             '2023-02' => 3500,
             '2023-03' => 8000,
         ];
-        return $ventas_por_mes;
     }
 
-    // Función para calcular los productos más vendidos (cuando tengas pagos_items)
     private function calcularProductosMasVendidos()
     {
-        // Aquí puedes agregar lógica para calcular los productos más vendidos
         return [
             'Producto 1' => 30,
             'Producto 2' => 50,
@@ -114,18 +52,194 @@ class PagosController extends AppController
         ];
     }
 
-
     public function registrar()
     {
+        $this->clientes = (new Clientes())->find();
+        $this->metodos_pago = (new MetodosPago())->find();
+
         if (Input::hasPost('pagos')) {
-            $pago = new Pagos(Input::post('pagos'));
-            if ($pago->create()) {
-                Flash::valid("Pago registrado");
-                Input::delete();
-            } else {
-                Flash::error("Error al registrar el pago");
+            $datosPago = Input::post('pagos');
+            $ventas_a_pagar = Input::post('ventas_a_pagar', []);
+
+            $cliente_id = $datosPago['cliente_id'] ?? null;
+            $metodo_pago_id = $datosPago['metodo_pago_id'] ?? null;
+            $monto_pago = isset($datosPago['monto']) ? (float)$datosPago['monto'] : 0;
+
+            if (!$cliente_id) {
+                Flash::error('Debe seleccionar un cliente.');
+                return;
+            }
+
+            $cliente = (new Clientes())->find_first($cliente_id);
+            if (!$cliente) {
+                Flash::error('El cliente seleccionado no existe.');
+                return;
+            }
+
+            if (!$metodo_pago_id) {
+                Flash::error('Debe seleccionar un método de pago.');
+                return;
+            }
+
+            $metodo = (new MetodosPago())->find_first($metodo_pago_id);
+            if (!$metodo) {
+                Flash::error('Método de pago no válido.');
+                return;
+            }
+
+            if ($monto_pago <= 0) {
+                Flash::error('El monto debe ser mayor a cero.');
+                return;
+            }
+
+            $adeudo_actual = (float)$cliente->adeudo;
+            $monto_a_registrar = min($monto_pago, $adeudo_actual);
+            $cambio = $monto_pago > $adeudo_actual ? $monto_pago - $adeudo_actual : 0;
+
+            $transaction = new Pagos();
+            $transaction->begin();
+
+            try {
+                $pago = new Pagos([
+                    'cliente_id' => $cliente_id,
+                    'metodo_pago_id' => $metodo_pago_id,
+                    'total' => $monto_a_registrar,
+                    'comentario' => $datosPago['comentario'] ?? '',
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+
+                if (!$pago->create()) {
+                    throw new Exception('Error al registrar el pago principal.');
+                }
+
+                if (!empty($ventas_a_pagar)) {
+                    $monto_restante_por_distribuir = $monto_a_registrar;
+
+                    foreach ($ventas_a_pagar as $venta_id => $monto_abonado) {
+                        $monto_abonado = (float)$monto_abonado;
+                        if ($monto_abonado > 0) {
+                            $venta = (new Ventas())->find_first($venta_id);
+
+                            if (!$venta) {
+                                throw new Exception("La venta ID $venta_id no existe");
+                            }
+
+                            $monto_abonado = min($monto_abonado, $monto_restante_por_distribuir);
+
+                            $venta->por_pagar -= $monto_abonado;
+                            if ($venta->por_pagar <= 0) {
+                                $venta->status = 'pagado';
+                            }
+
+                            if (!$venta->update()) {
+                                throw new Exception("Error al actualizar la venta $venta_id");
+                            }
+
+                            // 🔽 REGISTRO EN productos_log
+                            $detalles = (new Detalles_ventas())->find("ventas_id = {$venta->id}");
+
+                            foreach ($detalles as $detalle) {
+                                $log = new ProductosLog([
+                                    'producto_id' => $detalle->productos_id,
+                                    'entrada' => 0,
+                                    'salida' => $detalle->cantidad,
+                                    'venta_id' => $venta->id,
+                                    'created_at' => date('Y-m-d H:i:s')
+                                ]);
+                                if (!$log->create()) {
+                                    throw new Exception("Error al registrar en productos_log para el producto {$detalle->productos_id}");
+                                }
+                            }
+
+                            $monto_restante_por_distribuir -= $monto_abonado;
+                        }
+                    }
+                }
+
+                $cliente->adeudo = max(0, $adeudo_actual - $monto_a_registrar);
+                $cliente->credito += $monto_a_registrar;
+
+                if (!$cliente->update()) {
+                    throw new Exception('Error al actualizar el saldo del cliente.');
+                }
+
+                $transaction->commit();
+
+                $mensaje = "Pago registrado correctamente";
+                if (strtolower($metodo->nombre) === 'efectivo' && $cambio > 0) {
+                    $mensaje .= ". Cambio: $" . number_format($cambio, 2);
+                }
+
+                Flash::valid($mensaje);
+                Redirect::toAction('index');
+
+            } catch (Exception $e) {
+                $transaction->rollback();
+                Flash::error($e->getMessage());
+                Input::keep();
             }
         }
     }
-}
 
+    public function get_saldo()
+    {
+        $cliente_id = Input::get('cliente_id');
+        $metodo_pago_id = Input::get('metodo_pago_id');
+
+        header('Content-Type: application/json');
+
+        if (!$cliente_id || !$metodo_pago_id) {
+            echo json_encode(['error' => 'Faltan parámetros']);
+            exit;
+        }
+
+        $total = 0;
+        $ventas_pendientes = (new Ventas())->find("clientes_id = $cliente_id AND metodos_pago_id = $metodo_pago_id AND status != 'completada'");
+
+        foreach ($ventas_pendientes as $venta) {
+            $total += $venta->por_pagar;
+        }
+
+        echo json_encode(['total' => $total]);
+        exit;
+    }
+
+    public function get_adeudo()
+    {
+        $cliente_id = Input::get('cliente_id');
+        header('Content-Type: application/json');
+
+        if (!$cliente_id) {
+            echo json_encode(['error' => 'Falta cliente_id']);
+            exit;
+        }
+
+        $adeudo = 0;
+        $ventas_pendientes = (new Ventas())->find("clientes_id = $cliente_id AND status != 'completada'");
+
+        foreach ($ventas_pendientes as $venta) {
+            $adeudo += $venta->por_pagar;
+        }
+
+        echo json_encode(['adeudo' => $adeudo]);
+        exit;
+    }
+
+    public function finalizar($cliente_id = null)
+    {
+        $this->cliente = (new Clientes())->find($cliente_id);
+        $ventas = Input::get("ventas");
+        $this->ventas_a_pagar = [];
+        $this->total_a_abonar = 0;
+
+        foreach ($ventas as $k => $v) {
+            if ($v !== "") {
+                $item = (new Ventas())->find($k);
+                $item->a_abonar = $v;
+                $this->total_a_abonar += $v;
+                $this->ventas_a_pagar[] = $item;
+            }
+        }
+    }
+
+}

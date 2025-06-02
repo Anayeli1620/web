@@ -1,6 +1,6 @@
 <?php View::template("plantilla"); ?>
 
-    <h1>Detalles de Pagos</h1>
+    <h1>Pagos Items</h1>
     <a href="<?=URL_APP?>/pagos_items/registrar" class="btn btn-primary">Registrar Nuevo Pago</a>
     <style>
         .hidden-id { display: none; }
@@ -26,7 +26,7 @@
             <tr>
                 <td class="hidden-id"><?= $item->id ?></td>
                 <td><?= $item->cliente_nombre ?? 'N/A' ?></td>
-                <td>$<?= number_format($item->venta_total, 2) ?></td>
+                <td>$<?= number_format((float) $item->venta_total, 2) ?></td>
                 <td class="currency">$<?= number_format($item->antes, 2) ?></td>
                 <td class="currency">$<?= number_format($item->monto_pagado, 2) ?></td>
                 <td class="currency">$<?= number_format($item->adeudo, 2) ?></td>

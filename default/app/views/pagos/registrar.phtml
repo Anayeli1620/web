@@ -1,34 +1,164 @@
-<?= View::content()?>
-
 <?= Form::open() ?>
 
-<label>ID</label>
-<?= Form::number('pagos.id',["class"=> "form-control", "title"=>"id del pago"]) ?>
-<label>cliente_id</label>
-<?= Form::number('pagos.cliente_id',["class"=> "form-control", "title"=>"id del pago"]) ?>
-<label>matodo_pago_id</label>
-<?= Form::number('pagos.matodo_pago_id',["class"=> "form-control", "title"=>"id del pago"]) ?>
-<label>cometario</label>
-<?= Form::text('pagos.cometario',["class"=> "form-control", "title"=>"id del pago"]) ?>
+<h2>Registrar Pago</h2>
 
-<input type="file"
-       class="filepond"
-       name="filepond"
-       multiple
-       data-allow-reorder="true"
-       data-max-file-size="3MB"
-       data-max-files="3"
-       accept="image/png, image/jpeg, image/gif">
+<div class="form-group">
+    <label>Cliente</label>
+    <select name="pagos[cliente_id]" class="form-control" required id="cliente_id">
+        <option value="">Selecciona un cliente</option>
+        <?php foreach($clientes as $cliente): ?>
+            <?php
+            $credito_disponible = (float)$cliente->credito;
+            if ($credito_disponible < 0) $credito_disponible = 0;
+            ?>
+            <option
+                    value="<?= $cliente->id ?>"
+                    data-credito-disponible="<?= $credito_disponible ?>"
+                    data-adeudo="<?= (float)$cliente->adeudo ?>"
+            >
+                <?= htmlspecialchars($cliente->nombre) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
 
+<div class="form-group">
+    <label>Crédito disponible</label>
+    <input type="text" id="credito_disponible" readonly class="form-control" />
+</div>
 
-<?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
-<?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
-<?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+<div class="form-group">
+    <label>Adeudo actual</label>
+    <input type="text" id="adeudo_actual" readonly class="form-control" />
+</div>
+
+<div class="form-group">
+    <label>Método de pago</label>
+    <select name="pagos[metodo_pago_id]" class="form-control" required id="metodo_pago_id">
+        <option value="">Selecciona un método de pago</option>
+        <?php foreach($metodos_pago as $metodo): ?>
+            <option value="<?= $metodo->id ?>"><?= htmlspecialchars($metodo->nombre) ?></option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Monto a pagar</label>
+    <input type="number" name="pagos[monto]" id="monto_pagar" class="form-control" min="0" step="0.01" required />
+</div>
+
+<div class="form-group">
+    <label>Adeudo después del pago</label>
+    <input type="text" id="saldo_despues_pago" readonly class="form-control" />
+</div>
+
+<div class="form-group">
+    <label>Cambio (solo si aplica)</label>
+    <input type="text" id="cambio_pago" readonly class="form-control" />
+</div>
+
+<div class="form-group">
+    <label>Comentario</label>
+    <?= Form::text('pagos[comentario]', ['class' => 'form-control', 'placeholder' => 'Comentario del pago']) ?>
+</div>
+
+<!-- Tabla de ventas con adeudo -->
+<div id="ventas_con_adeudo" style="display:none; margin-top: 20px;">
+    <h4>Ventas con adeudo</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Total</th>
+            <th>Por pagar</th>
+            <th>Monto a abonar</th>
+        </tr>
+        </thead>
+        <tbody id="tabla_ventas_body">
+        <!-- Se llena con JS -->
+        </tbody>
+    </table>
+</div>
+
+<div class="form-group mt-4">
+    <?= Formbs::btn_guardar('Guardar', ['type' => 'submit']) ?>
+    <?= Formbs::btn_limpiar('Limpiar', ['type' => 'button', 'onclick' => 'limpiarFormulario()']) ?>
+    <?= Formbs::btn_regresar('Regresar', ['onclick' => 'window.history.back()']) ?>
+</div>
+
 <?= Form::close() ?>
 
-<!-- Script para limpiar formulario -->
+<!-- JavaScript -->
 <script>
     function limpiarFormulario() {
         document.querySelector('form').reset();
+        document.getElementById('credito_disponible').value = '';
+        document.getElementById('adeudo_actual').value = '';
+        document.getElementById('saldo_despues_pago').value = '';
+        document.getElementById('cambio_pago').value = '';
+        document.getElementById('ventas_con_adeudo').style.display = 'none';
+        document.getElementById('tabla_ventas_body').innerHTML = '';
     }
+
+    function actualizarCreditoDisponible() {
+        const clienteSelect = document.getElementById('cliente_id');
+        const selected = clienteSelect.options[clienteSelect.selectedIndex];
+        const creditoDisponible = parseFloat(selected?.getAttribute('data-credito-disponible')) || 0;
+        const adeudoActual = parseFloat(selected?.getAttribute('data-adeudo')) || 0;
+
+        document.getElementById('credito_disponible').value = creditoDisponible.toFixed(2);
+        document.getElementById('adeudo_actual').value = adeudoActual.toFixed(2);
+
+        actualizarSaldoDespuesPago();
+
+        const cliente_id = clienteSelect.value;
+        cargarVentasConAdeudo(cliente_id);
+    }
+
+    function actualizarSaldoDespuesPago() {
+        const adeudoActual = parseFloat(document.getElementById('adeudo_actual').value) || 0;
+        const montoPagar = parseFloat(document.getElementById('monto_pagar').value) || 0;
+
+        let saldo = adeudoActual - montoPagar;
+        if (saldo < 0) saldo = 0;
+
+        let cambio = montoPagar > adeudoActual ? montoPagar - adeudoActual : 0;
+
+        document.getElementById('saldo_despues_pago').value = saldo.toFixed(2);
+        document.getElementById('cambio_pago').value = cambio.toFixed(2);
+    }
+
+    function cargarVentasConAdeudo(cliente_id) {
+        if (!cliente_id) return;
+
+        fetch(`<?= PUBLIC_PATH ?>pagos/ventas_cliente/${cliente_id}`)
+            .then(response => response.json())
+            .then(ventas => {
+                const tablaBody = document.getElementById('tabla_ventas_body');
+                tablaBody.innerHTML = '';
+
+                if (!ventas.length) {
+                    document.getElementById('ventas_con_adeudo').style.display = 'none';
+                    return;
+                }
+
+                ventas.forEach(venta => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${venta.folio}</td>
+                        <td>$${parseFloat(venta.total).toFixed(2)}</td>
+                        <td>$${parseFloat(venta.por_pagar).toFixed(2)}</td>
+                        <td>
+                            <input type="number" name="ventas_a_pagar[${venta.id}]" min="0" max="${venta.por_pagar}" step="0.01" class="form-control" />
+                        </td>
+                    `;
+                    tablaBody.appendChild(tr);
+                });
+
+                document.getElementById('ventas_con_adeudo').style.display = 'block';
+            });
+    }
+
+    document.getElementById('cliente_id').addEventListener('change', actualizarCreditoDisponible);
+    document.getElementById('monto_pagar').addEventListener('input', actualizarSaldoDespuesPago);
 </script>

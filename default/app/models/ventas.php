@@ -1,151 +1,129 @@
 <?php
 class Ventas extends ActiveRecord
 {
-    public function initialize()
+    // Relaciones belongs_to
+    public $belongs_to = [
+        'cliente' => [
+            'model' => 'Clientes',
+            'foreign_key' => 'clientes_id'
+        ],
+        'empleado' => [
+            'model' => 'Empleados',
+            'foreign_key' => 'empleados_id'
+        ],
+        'metodo_pago' => [  // Relación con método de pago
+            'model' => 'Metodos_pago',
+            'foreign_key' => 'metodos_pago_id'
+        ]
+    ];
+
+    // Relaciones has_many
+    public $has_many = [
+        'detalles' => [
+            'model' => 'Detalles_ventas',
+            'foreign_key' => 'ventas_id'
+        ]
+    ];
+    public $columns = [
+        'id',
+        'clientes_id',
+        'empleados_id',
+        'metodos_pago_id',
+        'productos_id',
+        'usuario_id',
+        'fecha',
+        'total',
+        'por_pagar',
+        'status',
+        'monto_pagado',
+        'cambio',
+        'comentario',
+        'forma_pago',
+        'cancelada',
+        'created_at',  // era created_in een dado caso
+        'updated_in',
+    ];
+
+    // Validaciones antes de guardar
+    public function before_save()
     {
-
-        $this->has_many('Items', 'model: DetallesVentas', 'fk: ventas_id');
-        $this->belongs_to('Cliente', 'model: Clientes', 'fk: clientes_id');
-
-        $this->belongs_to('vendedor', 'model: Empleados', 'fk: empleados_id');
-        $this->belongs_to('metodo', 'model: MetodosPago', 'fk: metodos_pago_id');
-        $this->belongs_to('producto', 'model: Productos', 'fk: productos_id'); // Relación con productos
-
-//        $this->validates_presence_of("nombre");
-//
-//        $this->validates_length_of(
-//            "nombre",
-//            [
-//                'min' => 15,
-//                'max' => 40,
-//                'too_short' => 'El nombre debe tener al menos 15 caracteres',
-//                'too_long' => 'El nombre debe tener máximo 40 caracteres'
-//            ]
-//        );
+        $errors = [];
+        if (empty($this->clientes_id)) {
+            $errors['clientes_id'] = 'Debe seleccionar un cliente';
         }
+        if (empty($this->empleados_id)) {
+            $errors['empleados_id'] = 'Empleado no asignado';
+        }
+        if (empty($this->metodos_pago_id)) {
+            $errors['metodos_pago_id'] = 'Debe seleccionar un método de pago';
+        }
+        if (empty($this->fecha)) {
+            $errors['fecha'] = 'Fecha requerida';
+        }
+        if (!isset($this->total) || $this->total <= 0) {
+            $errors['total'] = 'Total de venta debe ser mayor a cero';
+        }
+        if (!isset($this->por_pagar)) {
+            $this->por_pagar = 0;
+        }
+        if (!empty($errors)) {
+            $this->validation_errors = $errors;
+            error_log("Errores de validación Venta: " . json_encode($errors));
+            return false;
+        }
+        return true;
 
-    public function get_carrito($cliente_id){
-        return (new Ventas())->find("conditions: clientes_id = {$cliente_id} AND status = 'carrito'")[0];
+
+    }
+
+    public function before_update()
+    {
+        $this->updated_in = date('Y-m-d H:i:s');
     }
 
 
-
-
-    public function crear($clientes_id)
+    // Mensajes de error para mostrar
+    public function get_messages()
     {
-        $venta = (new Ventas());
-        $venta->clientes_id = $clientes_id;
-        $venta->status = "carrito";
-        $venta->save();
-        return $venta;
+        $errors = [];
+        if (!empty($this->validation_errors)) {
+            foreach ($this->validation_errors as $field => $message) {
+                $errors[] = ucfirst(str_replace('_', ' ', $field)) . ": $message";
+            }
+        }
+        return $errors;
     }
 
-        // Agrega un producto a la venta
-    public function add_item($producto, $cantidad)
+    // Inicializar datos al crear venta
+    public function before_create()
     {
-        if ($this->status == "carrito") {
-            // Verificar si el producto ya está en el carrito
-            $detalle_venta = (new DetallesVentas())->find_first("ventas_id = {$this->id} AND productos_id = {$producto->id}");
-
-            if ($detalle_venta) {
-                // comen_por si.Si el producto ya está en el carrito, solo incrementamos la cantidad
-                $detalle_venta->cantidad += $cantidad;
-                // comen_por si se me olvida__Volver a calcular el importe correctamente
-                $detalle_venta->importe = $detalle_venta->cantidad * $detalle_venta->unitario;
-                $detalle_venta->save();
-            } else {
-                // es como validacion__Si no está en el carrito, agregamos el producto como nuevo item
-                $item = new DetallesVentas();
-                $item->ventas_id = $this->id;
-                $item->productos_id = $producto->id;
-                $item->cantidad = $cantidad;
-                $item->unitario = $producto->precio;
-                // Calcular el importe correctamente
-                $item->importe = $cantidad * $producto->precio;
-                $item->save();
-            }
-
-            // Actualizar el stock
-            $producto->bajastock($producto->id, $cantidad);
+        if (empty($this->fecha)) {
+            $this->fecha = date('Y-m-d H:i:s');
+        }
+        if (empty($this->status)) {
+            $this->status = 'carrito';
+        }
+        if (empty($this->usuario_id)) {
+            $this->usuario_id = Auth::get('id');
+        }
+        if (empty($this->empleados_id)) {
+            $this->empleados_id = Auth::get('id');
+        }
+        if (!isset($this->total)) {
+            $this->total = 0;
+        }
+        if (!isset($this->por_pagar)) {
+            $this->por_pagar = 0;
+        }
+        if (!isset($this->cancelada)) {
+            $this->cancelada = 0;
         }
 
-        if ($this->status === "finalizada") {
-            $this->getCliente()->linea_credito();
-        }
+
     }
-
-
-
-
-//el comentario de abajo estaba dentro del add item
-    //  $detalle->getProducto()->bajastock($producto->id, $cantidad);
-
-
-        public function set_finalizar()
-        {
-            $this->activo = false;
-            $this->status = "finalizado";
-            if ($this->forma_pago === "PPP") {
-                $this->por_pagar = $this->total;
-            }
-
-            $this->save();
-            $this->set_total();
-            $this->getCliente()->update_credito();
-        }
-
-        // Validar si el crédito es suficiente (para pagos a crédito - PPD)
-        public
-        function venta_valida()
-        {
-            if ($this->forma_pago === "PPP") {
-                $credito_suficiente = ($this->total < $this->getCliente()->credito) ? 1 : 0;
-                return $credito_suficiente;
-            }
-            return true;
-        }
-
-
-        public
-        function set_total()
-        {
-            //   $this->total = $this->getItems()->sum('importe');
-            $this->total = (new DetallesVentas())->sum("importe", "conditions: ventas_id = {$this->id}");
-            $this->save();
-        }
-        public function por_pagar($cliente_id){
-           return (new Ventas())->find("clientes_id = {$cliente_id} AND por_pagar > 0
-           AND status= 'finalizada'");
-        }
-        // Obtiene detalles de la venta
-        public function getDetallesVentas()
-        {
-            return (new DetallesVentas())->find("ventas_id = {$this->id}");
-        }
-
-        public
-        function getCliente()
-        {
-            return (new Clientes())->find_first($this->id);
-        }
-
-        public
-        function getEmpleado()
-        {
-            return (new Empleados())->find_first($this->id);
-        }
-
-        public
-        function metodos_pago()
-        {
-            return $this->belongs_to('MetodosPago');
-        }
-
-        // Relación con los productos
-        public function getDetalles()
-        {
-            return $this->has_many('DetallesVentas');
-        }
+    public function find_all_by_cliente($cliente_id)
+    {
+        return $this->find("conditions: cliente_id = $cliente_id AND por_pagar > 0");
+    }
 
 }
-?>

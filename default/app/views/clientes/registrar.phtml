@@ -79,7 +79,7 @@
                 uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
                 uploadStatus.innerHTML = '<div class="alert alert-info">Subiendo imagen...</div>';
 
-                fetch('<?= URL_APP ?>/clientes/upload', {
+                fetch('<?= URL_APP ?>/upload/clientes', {
                     method: 'POST',
                     body: formData
                 })

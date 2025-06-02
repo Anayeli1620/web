@@ -27,8 +27,7 @@ View::template("plantilla"); ?>
                 </a>
             </td>
             <td><?= $p->metodo_pago_nombre ?? 'N/A' ?></td>
-            <td>$<?= number_format($p->total, 2) ?></td>
-            <td><?= $p->comentario ?></td>
+            <td>$<?= number_format((float)$p->total, 2) ?></td>            <td><?= $p->comentario ?></td>
         </tr>
     <?php endforeach; ?>
     </tbody>

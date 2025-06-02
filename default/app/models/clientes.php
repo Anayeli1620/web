@@ -28,9 +28,6 @@ class clientes extends ActiveRecord {
         $sql= "UPDATE clientes c SET adeudo = (SELECT SUM(por_pagar) FROM ventas v WHERE v.clientes_id = c.id AND por_pagar > 0 AND status = 'finalizada') WHERE c.id = {$this->id}";
 
         (new Clientes())->sql($sql);
-
-
-        (new Clientes())->sql($sql);
     }
 
     public function linea_credito()
@@ -41,9 +38,5 @@ class clientes extends ActiveRecord {
 
 
     // Añadir los nuevos atributos
-    public function fields() {
-        return [
-            'id', 'nombre', 'email', 'telefono', 'password', 'credito', 'adeudo', 'activo', 'created_at', 'update_in'
-        ];
-    }
+
 }

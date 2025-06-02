@@ -1,6 +1,3 @@
-
-
-
 <h1 class="text-center">Detalles del empleado</h1>
 
 <div class="container">
@@ -27,7 +24,7 @@
                     foreach ($empleados->getVentas() as $venta):
 
                         // Obtienes primero el detalle de la venta
-                        $detalleVenta = (new DetallesVentas())->find_first("ventas_id = {$venta->id}");
+                        $detalleVenta = (new Detalles_ventas())->find_first("ventas_id = {$venta->id}");
 
                         if ($detalleVenta) {
                             // Ahora sí obtienes el producto

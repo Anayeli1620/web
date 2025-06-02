@@ -1,10 +1,44 @@
 <?php
 
-class DetallesVentas extends ActiveRecord {
+class Detalles_ventas extends ActiveRecord {
     // Relación con productos
     public function getProducto() {
         return (new Productos())->find_first($this->productos_id);  // Accedemos al producto a través de productos_id
     }
+    public function initialize()
+    {
+        $this->belongs_to('ventas', 'model: Ventas', 'fk: ventas_id');
+        $this->belongs_to('productos', 'model: Productos', 'fk: productos_id');
+
+    }
+
+    public $belongs_to = [
+        'venta' => ['model' => 'Ventas', 'foreign_key' => 'ventas_id'],
+        'producto' => ['model' => 'Productos', 'foreign_key' => 'productos_id']
+    ];
+
+
+    public function before_save()
+    {
+        // Calcular subtotal automáticamente
+        $this->subtotal = $this->cantidad * $this->precio;
+        $this->importe = $this->subtotal; // ← aquí se arregla todo
+
+        return true;
+
+
+    }
+    public function get_messages()
+    {
+        $errors = [];
+        if (!empty($this->validation_errors)) {
+            foreach ($this->validation_errors as $field => $message) {
+                $errors[] = ucfirst(str_replace('_', ' ', $field)) . ": $message";
+            }
+        }
+        return $errors;
+    }
+    public $attr_accessible = ['ventas_id', 'productos_id', 'cantidad', 'precio', 'unitario', 'descuento', 'subtotal', 'importe', 'descripcion'];
 
     //public function initialize() {
         // Validación para ventas_id (presencia y existencia en la tabla de ventas)
