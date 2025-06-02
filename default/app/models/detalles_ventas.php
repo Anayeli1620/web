@@ -9,24 +9,24 @@ class Detalles_ventas extends ActiveRecord
     }
 
     // Método before_save corregido
-    public function before_save()
-    {
-        // Validación básica de campos requeridos
-        if (empty($this->cantidad) || empty($this->unitario)) {
-            error_log("Error: Cantidad o precio unitario faltante");
-            return false;
-        }
-
-        // Cálculos seguros
-        $this->subtotal = (float)$this->cantidad * (float)$this->unitario;
-        $this->importe = (0);
-
-        // Asignación de fechas
-        $this->created_at = date('Y-m-d H:i:s');
-        $this->updated_in = date('Y-m-d H:i:s');
-
-        return true;
-    }
+//    public function before_save()
+//    {
+//        // Validación básica de campos requeridos
+//        if (empty($this->cantidad) || empty($this->unitario)) {
+//            error_log("Error: Cantidad o precio unitario faltante");
+//            return false;
+//        }
+//
+//        // Cálculos seguros
+//        $this->subtotal = (float)$this->cantidad * (float)$this->unitario;
+//        $this->importe = (0);
+//
+//        // Asignación de fechas
+//        $this->created_at = date('Y-m-d H:i:s');
+//        $this->updated_in = date('Y-m-d H:i:s');
+//
+//        return true;
+//    }
 
     // Atributos accesibles (completos)
     public $attr_accessible = [
