@@ -21,6 +21,7 @@ class Detalles_ventas extends ActiveRecord
 //        $this->subtotal = (float)$this->cantidad * (float)$this->unitario;
 //        $this->importe = (0);
 //
+// esto se oculta de detalles_venats
 //        // Asignación de fechas
 //        $this->created_at = date('Y-m-d H:i:s');
 //        $this->updated_in = date('Y-m-d H:i:s');
