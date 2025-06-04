@@ -9,16 +9,16 @@
             <div class="card" style="width: 100%;">
                 <div class="card-body">
                     <h5 class="card-title">Pago ID: <?= $pago->id ?></h5>
-                    <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?></p>
-                    <p class="card-text"><strong>Método de Pago:</strong> <?= $pago->metodo_pago_id?></p>
-                    <p class="card-text"><strong>Total:</strong> $<?= number_format((float)$total_ingresos, 2) ?></p>
-                    <p class="card-text"><strong>Comentario:</strong> <?= $pago->comentario?></p>
+                    <p class="card-text"><strong>Cliente:</strong> <?= $pago->cliente->nombre ?? 'Sin nombre' ?></p>
+                    <p class="card-text"><strong>Método de Pago:</strong> <?= $pago->metodo_pago_id ?? 'No especificado' ?></p>
+                    <p class="card-text"><strong>Total:</strong> $<?= number_format((float)($total_ingresos ?? 0), 2) ?></p>
+                    <p class="card-text"><strong>Comentario:</strong> <?= $pago->comentario ?? 'Sin comentario' ?></p>
 
-                    <img src="<?=URL_APP?>/public/img/pagos/<?= $pagos->id ?>.jpg" width="250px" >
-
+                    <img src="<?= URL_APP ?>/public/img/pagos/<?= $pago->id ?>.jpg" width="250px">
                 </div>
             </div>
         </div>
+
         <!-- Resumen de ventas -->
         <div class="row mt-4">
             <div class="col-md-12">
@@ -34,9 +34,9 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td>$<?= number_format((float)$total_ingresos, 2) ?></td>                            <!-- Asegúrate de que $ventas esté inicializado -->
-                            <td><?= count($ventas) ?></td>
-                            <td><?= count($productos_mas_vendidos) ?></td>
+                            <td>$<?= number_format((float)($total_ingresos ?? 0), 2) ?></td>
+                            <td><?= count($ventas ?? []) ?></td>
+                            <td><?= count($productos_mas_vendidos ?? []) ?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -44,23 +44,23 @@
             </div>
         </div>
 
-
-    <!-- Gráficas -->
-    <h3>Gráficas</h3>
-    <div class="row mt-4">
-        <!-- Gráfico de Productos Más Vendidos -->
-        <div class="col-md-6">
-            <div class="card">
-                <h5 class="text-center">Productos Más Vendidos</h5>
-                <canvas id="productosMasVendidosChart"></canvas>
+        <!-- Gráficas -->
+        <h3>Gráficas</h3>
+        <div class="row mt-4">
+            <!-- Gráfico de Productos Más Vendidos -->
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="text-center">Productos Más Vendidos</h5>
+                    <canvas id="productosMasVendidosChart"></canvas>
+                </div>
             </div>
-        </div>
 
-        <!-- Gráfico de Ventas Mensuales -->
-        <div class="col-md-6">
-            <div class="card">
-                <h5 class="text-center">Ventas Mensuales</h5>
-                <canvas id="ventasMensualesChart"></canvas>
+            <!-- Gráfico de Ventas Mensuales -->
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="text-center">Ventas Mensuales</h5>
+                    <canvas id="ventasMensualesChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -74,9 +74,9 @@
     new Chart(ctx1, {
         type: 'doughnut',
         data: {
-            labels: <?= json_encode(array_keys($productos_mas_vendidos)) ?>,  // Etiquetas de productos
+            labels: <?= json_encode(array_keys($productos_mas_vendidos ?? [])) ?>,
             datasets: [{
-                data: <?= json_encode(array_values($productos_mas_vendidos)) ?>,  // Datos de cantidades vendidas
+                data: <?= json_encode(array_values($productos_mas_vendidos ?? [])) ?>,
                 backgroundColor: ['#1abc9c', '#f39c12', '#3498db', '#9b59b6', '#e74c3c']
             }]
         },
@@ -90,12 +90,12 @@
     new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: <?= json_encode(array_keys($ventas_por_mes)) ?>,  // Meses
+            labels: <?= json_encode(array_keys($ventas_por_mes ?? [])) ?>,
             datasets: [{
-                label: 'Ventas en $',  // Etiqueta para el gráfico
-                data: <?= json_encode(array_values($ventas_por_mes)) ?>,  // Ventas por mes
-                backgroundColor: 'rgba(52, 152, 219, 0.5)',  // Color de las barras
-                borderColor: 'rgba(52, 152, 219, 1)',  // Color del borde de las barras
+                label: 'Ventas en $',
+                data: <?= json_encode(array_values($ventas_por_mes ?? [])) ?>,
+                backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                borderColor: 'rgba(52, 152, 219, 1)',
                 borderWidth: 1
             }]
         },
@@ -108,14 +108,12 @@
     });
 </script>
 
+<?= Form::open() ?>
+<?= Formbs::btn_regresar('Regresar') ?>
+<?= Form::close() ?>
 
-    <?= Form::open() ?>
-    <!-- Botón Regresar -->
-    <?= Formbs::btn_regresar('Regresar') ?>
-    <?= Form::close() ?>
-    <!-- Script para limpiar formulario -->
-    <script>
-        function limpiarFormulario() {
-            document.querySelector('form').reset();
-        }
-    </script>
+<script>
+    function limpiarFormulario() {
+        document.querySelector('form').reset();
+    }
+</script>

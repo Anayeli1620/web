@@ -20,7 +20,7 @@ class VentasController extends AppController
     }
     public function show($id)
     {
-        // Obtener la venta principal (solo una)
+        // venta principal (solo una)
         $venta = (new Ventas())->find_first((int) $id);
         $this->venta = (new Ventas())->find($id); // en singular
 
@@ -30,7 +30,7 @@ class VentasController extends AppController
             return Redirect::to('ventas/index');
         }
 
-        // Obtener detalles de esa venta
+        // detalles de esa venta
         $detalles_ventas = (new Detalles_ventas())->find("conditions: ventas_id = $id");
 
         // Cálculos
@@ -67,8 +67,8 @@ class VentasController extends AppController
             $ventas_por_mes[$mes] = ($ventas_por_mes[$mes] ?? 0) + $v->total;
         }
 
-        // Pasar datos a la vista
-        $this->venta = $venta; // UNA sola venta
+        // datos a la vista
+        $this->venta = $venta;
         $this->detalles_ventas = $detalles_ventas;
         $this->total_unidades = $total_unidades;
         $this->total_ingresos = $total_ingresos;
@@ -84,17 +84,13 @@ class VentasController extends AppController
         $cliente_actual = Session::get('cliente_id');
 
         if ($cliente_id !== null && $cliente_id != $cliente_actual) {
-            // No borres el carrito anterior, simplemente actualiza el cliente actual
             Session::set('cliente_id', $cliente_id);
             $cliente_seleccionado = $cliente_id;
         } else {
             $cliente_seleccionado = $cliente_actual;
         }
 
-
-
         $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
-
         if (!Session::has($carrito_key)) {
             Session::set($carrito_key, []);
         }
@@ -120,7 +116,7 @@ class VentasController extends AppController
                 error_log("Carrito vacío al finalizar venta. Contenido: " . print_r($carrito, true));
                 return Redirect::to("ventas/registrar/{$clientes_id}");
             }
-            // Resto del código...
+
         }
         $buscar_cliente = Input::get('buscar_cliente') ?? '';
         $buscar_producto = Input::get('buscar_producto') ?? '';
@@ -134,7 +130,7 @@ class VentasController extends AppController
             : (new Productos())->find("stock > 0");
 
         $this->metodos_pago = (new MetodosPago())->find();
-//se hace dinamico el asunto
+
         $cliente_seleccionado = Session::get('cliente_id');
         $this->cliente_seleccionado = $cliente_seleccionado;
         $carrito_key = 'carrito_venta_cliente_' . $cliente_seleccionado;
@@ -239,7 +235,7 @@ class VentasController extends AppController
                 $venta->fecha = date('Y-m-d H:i:s');
                 $venta->total = $total_carrito;
 
-// 🔻 Obtener el adeudo actual del cliente y sumarlo
+//  Obtener el adeudo actual del cliente y sumarlo
                 $cliente = (new Clientes())->find_first($clientes_id);
                 if ($cliente) {
                     $nuevo_adeudo = (float)$cliente->adeudo + (float)$total_carrito;
@@ -258,7 +254,7 @@ class VentasController extends AppController
                     Flash::error("Error al guardar venta: " . implode(", ", $errors));
                     return Redirect::to("ventas/registrar/{$cliente_seleccionado}");
                 }
-// 🔻 REGISTRAR DETALLES DE VENTA
+//  REGISTRAR DETALLES DE VENTA
                 foreach ($carrito as $item) {
                     $detalle = new Detalles_ventas();
                     $detalle->ventas_id = $venta->id;
@@ -295,8 +291,6 @@ class VentasController extends AppController
                 $cliente = (new Clientes())->find_first($clientes_id);
                 if ($cliente) {
                     $cliente->adeudo = (float)$cliente->adeudo + (float)$total_carrito;
-
-                    $cliente->adeudo += $total_carrito;
                     $cliente->save();
                 }
 
@@ -325,13 +319,8 @@ class VentasController extends AppController
         if ($this->request->isPost()) {
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // Aquí implementarías la lógica para guardar el carrito temporalmente
-            // asociado al cliente actual antes de cambiar
-
             try {
-                // Ejemplo: guardar en sesión o base de datos temporal
                 Session::set('carrito_temporal_' . $data['cliente_actual'], $data['carrito']);
-
                 return json_encode([
                     'success' => true,
                     'message' => 'Carrito guardado temporalmente'

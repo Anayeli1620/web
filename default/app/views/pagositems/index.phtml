@@ -1,7 +1,7 @@
 <?php View::template("plantilla"); ?>
 
-    <h1>Pagos Items</h1>
-    <a href="<?=URL_APP?>/pagos_items/registrar" class="btn btn-primary">Registrar Nuevo Pago</a>
+    <h1>Pagos items</h1>
+    <a href="<?=URL_APP?>/pagositems/registrar" class="btn btn-primary">Registrar Nuevo Pago</a>
     <style>
         .hidden-id { display: none; }
         .currency { text-align: right; }
@@ -16,24 +16,23 @@
             <th class="currency">Antes</th>
             <th class="currency">Monto Pagado</th>
             <th class="currency">Adeudo</th>
-            <th>Método de Pago</th>
             <th>Fecha</th>
             <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($pagos_items as $item): ?>
+        <?php foreach ($pagositems as $item): ?>
             <tr>
                 <td class="hidden-id"><?= $item->id ?></td>
-                <td><?= $item->cliente_nombre ?? 'N/A' ?></td>
-                <td>$<?= number_format((float) $item->venta_total, 2) ?></td>
-                <td class="currency">$<?= number_format($item->antes, 2) ?></td>
-                <td class="currency">$<?= number_format($item->monto_pagado, 2) ?></td>
-                <td class="currency">$<?= number_format($item->adeudo, 2) ?></td>
-                <td><?= $item->metodo_pago_nombre ?? 'N/A' ?></td>
+                <td><?= $item->pago_id ?></td>
+                <td>$<?= number_format((float) $item->venta_id, 2) ?></td>
+                <td class="currency">$<?= number_format((float)$item->antes, 2) ?></td>
+                <td class="currency">$<?= number_format((float)$item->monto_pagado, 2) ?></td>
+                <td class="currency">$<?= number_format((float)$item->adeudo, 2) ?></td>
+
                 <td><?= date('d/m/Y H:i', strtotime($item->created_at)) ?></td>
                 <td>
-                    <a href="<?=URL_APP?>/pagos_items/show/<?= $item->id ?>" class="btn btn-sm btn-info">
+                    <a href="<?=URL_APP?>/pagositems/show/<?= $item->id ?>" class="btn btn-sm btn-info">
                         Ver
                     </a>
                 </td>

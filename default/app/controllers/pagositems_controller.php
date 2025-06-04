@@ -1,41 +1,31 @@
 <?php
 
-class PagosItemsController extends AppController
+class PagositemsController extends AppController
 {
     // Método para listar todos los pagos en el sistema
     public function index()
     {
-        $this->pagos_items = (new PagosItems())->find("columns: 
-        pagos_items.*,
-        ventas.total as venta_total,
-        clientes.nombre as cliente_nombre,
-        metodos_pago.nombre as metodo_pago_nombre
-    ", "join: 
-        LEFT JOIN ventas ON pagos_items.venta_id = ventas.id
-        LEFT JOIN clientes ON ventas.clientes_id = clientes.id
-        LEFT JOIN pagos ON pagos_items.pago_id = pagos.id
-        LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
-    ");
+        $this->pagositems = (new Pagositems())->find();
     }
 
     public function show($id)
     {
-        $this->pago_item = (new PagosItems())->find_first("columns:
-            pagos_items.*,
+        $this->pago_item = (new Pagositems())->find_first("columns:
+            pagositems.*,
             ventas.total as venta_total,
             clientes.nombre as cliente_nombre,
             metodos_pago.nombre as metodo_pago_nombre,
             pagos.total as pago_total
         ", "join:
-            LEFT JOIN ventas ON pagos_items.venta_id = ventas.id
+            LEFT JOIN ventas ON pagositems.venta_id = ventas.id
             LEFT JOIN clientes ON ventas.clientes_id = clientes.id
-            LEFT JOIN pagos ON pagos_items.pago_id = pagos.id
+            LEFT JOIN pagos ON pagositems.pago_id = pagos.id
             LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
-        ", "conditions: pagos_items.id = {$id}");
+        ", "conditions: pagositems.id = {$id}");
 
         if (!$this->pago_item) {
             Flash::error('Pago no encontrado');
-            return Redirect::to('pagos_items/index');
+            return Redirect::to('pagositems/index');
         }
 
 
@@ -58,8 +48,8 @@ class PagosItemsController extends AppController
         LEFT JOIN clientes ON ventas.clientes_id = clientes.id
     ", "order: ventas.id DESC");
 
-        if (Input::hasPost('pagos_items')) {
-            $datos = Input::post('pagos_items');
+        if (Input::hasPost('pagositems')) {
+            $datos = Input::post('pagositems');
             $venta_id = $datos['venta_id'] ?? null;
             $pago_id = $datos['pago_id'] ?? null;
 
@@ -95,7 +85,7 @@ class PagosItemsController extends AppController
             }
 
             // Crear el pagos_items
-            $pago_item = new PagosItems([
+            $pago_item = new Pagositems([
                 'venta_id' => $venta_id,
                 'pago_id' => $pago_id,
                 'antes' => $cliente->adeudo,
@@ -109,13 +99,13 @@ class PagosItemsController extends AppController
 
             if ($pago_item->create() && $cliente->update()) {
                 Flash::valid("¡Pago registrado correctamente!");
-                return Redirect::to('pagos_items/index');
+                return Redirect::to('pagositems/index');
             }
 
             Flash::error("Error al registrar el pago");
         }
 
-        $this->pagos_items = new PagosItems();
+        $this->pagositems = new Pagositems();
     }
 
     public function obtener_ultimo_pago($venta_id)
@@ -125,8 +115,8 @@ class PagosItemsController extends AppController
 
         $ultimoPago = (new Pagos())->find_first([
             "columns" => "pagos.id as pago_id, pagos.total as total_pagado", // <-- Asegúrate de usar pagos.total
-            "join" => "LEFT JOIN pagos_items ON pagos_items.pago_id = pagos.id",
-            "conditions" => "pagos_items.venta_id = $venta_id",
+            "join" => "LEFT JOIN pagositems ON pagositems.pago_id = pagos.id",
+            "conditions" => "pagositems.venta_id = $venta_id",
             "order" => "pagos.fecha_creacion DESC"
         ]);
 

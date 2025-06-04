@@ -32,7 +32,6 @@ return [
         'type'     => 'mysql',
 
         'charset'  => 'utf8',
-        'port'     => '25060',
 
     ],
 ];

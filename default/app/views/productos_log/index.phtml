@@ -11,7 +11,6 @@
         <th>Producto</th>
         <th>Entrada</th>
         <th>Salida</th>
-        <th>Venta Relacionada</th>
         <th>Acciones</th>
     </tr>
     </thead>
@@ -28,15 +27,7 @@
             </td>
             <td><?= $log->entrada ?></td>
             <td><?= $log->salida ?></td>
-            <td>
-                <?php if ($log->venta_id): ?>
-                    <a href="<?=URL_APP?>/ventas/show/<?= $log->venta_id ?>">
-                        Venta #<?= $log->venta_id ?>
-                    </a>
-                <?php else: ?>
-                    N/A
-                <?php endif; ?>
-            </td>
+
             <td>
                 <a href="<?=URL_APP?>/productos_log/show/<?= $log->id ?>" class="btn btn-sm btn-info">
                     Detalle

@@ -36,7 +36,7 @@ class ProductosLogController extends AppController
         }
 
         // Calcular stock actual
-        $this->stock_actual = $this->producto_log->entrada - $this->producto_log->salida;
+        $this->stock_actual = (float) $this->producto_log->entrada - (float) $this->producto_log->salida;
 
 
     // ... (el método registrar permanece igual)

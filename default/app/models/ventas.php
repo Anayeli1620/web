@@ -81,8 +81,6 @@ class Ventas extends ActiveRecord
         $this->updated_in = date('Y-m-d H:i:s');
     }
 
-
-    // Mensajes de error para mostrar
     public function get_messages()
     {
         $errors = [];
@@ -118,12 +116,18 @@ class Ventas extends ActiveRecord
         if (!isset($this->cancelada)) {
             $this->cancelada = 0;
         }
-
-
     }
+
+    //busca y retorna los registros que cumplan con dos condiciones específicas
     public function find_all_by_cliente($cliente_id)
     {
         return $this->find("conditions: cliente_id = $cliente_id AND por_pagar > 0");
+    }
+
+    public function restar($cliente_id, $adeudo){
+        $venta=(new Ventas());
+        $sql = "UPDATE ventas SET por_pagar=$adeudo WHERE clientes_id = $cliente_id AND por_pagar > 0 ORDER BY created_at DESC LIMIT 1;";
+        $venta->sql($sql);
     }
 
 }

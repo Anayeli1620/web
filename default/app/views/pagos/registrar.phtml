@@ -1,3 +1,4 @@
+<?= View::content()?>
 <?= Form::open() ?>
 
 <h2>Registrar Pago</h2>
@@ -62,7 +63,7 @@
     <?= Form::text('pagos[comentario]', ['class' => 'form-control', 'placeholder' => 'Comentario del pago']) ?>
 </div>
 
-<!-- Tabla de ventas con adeudo -->
+<!-- Tabla de ventas con adeudo (dinámica) -->
 <div id="ventas_con_adeudo" style="display:none; margin-top: 20px;">
     <h4>Ventas con adeudo</h4>
     <table class="table table-bordered">
@@ -75,7 +76,7 @@
         </tr>
         </thead>
         <tbody id="tabla_ventas_body">
-        <!-- Se llena con JS -->
+        <!-- Se llena dinámicamente por JavaScript -->
         </tbody>
     </table>
 </div>
@@ -87,9 +88,8 @@
 </div>
 
 <?= Form::close() ?>
-
-<!-- JavaScript -->
 <script>
+    // Limpia todos los campos del formulario
     function limpiarFormulario() {
         document.querySelector('form').reset();
         document.getElementById('credito_disponible').value = '';
@@ -99,66 +99,64 @@
         document.getElementById('ventas_con_adeudo').style.display = 'none';
         document.getElementById('tabla_ventas_body').innerHTML = '';
     }
-
+    // Actualiza el crédito disponible y adeudo cuando se selecciona un cliente
     function actualizarCreditoDisponible() {
         const clienteSelect = document.getElementById('cliente_id');
         const selected = clienteSelect.options[clienteSelect.selectedIndex];
         const creditoDisponible = parseFloat(selected?.getAttribute('data-credito-disponible')) || 0;
         const adeudoActual = parseFloat(selected?.getAttribute('data-adeudo')) || 0;
-
+        // Muestra los valores en los campos correspondientes
         document.getElementById('credito_disponible').value = creditoDisponible.toFixed(2);
         document.getElementById('adeudo_actual').value = adeudoActual.toFixed(2);
-
+        // Actualiza el saldo después del pago
         actualizarSaldoDespuesPago();
-
+        // Si hay cliente seleccionado, obtiene sus ventas con adeudo
         const cliente_id = clienteSelect.value;
-        cargarVentasConAdeudo(cliente_id);
+        if (cliente_id) {
+            fetch(`<?= PUBLIC_PATH ?>pagos/ventas_cliente/${cliente_id}`)
+                .then(res => res.json())
+                .then(data => {
+                    const body = document.getElementById('tabla_ventas_body');
+                    body.innerHTML = '';
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        document.getElementById('ventas_con_adeudo').style.display = 'block';
+                        data.forEach(v => {
+                            body.innerHTML += `
+                                <tr>
+                                    <td>${v.folio}</td>
+                                    <td>$${parseFloat(v.total).toFixed(2)}</td>
+                                    <td>$${parseFloat(v.por_pagar).toFixed(2)}</td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            name="ventas_a_pagar[{v.id}]"
+                                            min="0"
+                                            max="${parseFloat(v.por_pagar).toFixed(2)}"
+                                            step="0.01"
+                                            class="form-control abono_input"
+                                            placeholder="0.00"
+                                        />
+                                    </td>
+                                </tr>`;
+                        });
+                    } else {
+                        // Si no hay ventas con adeudo, oculta la tabla
+                        document.getElementById('ventas_con_adeudo').style.display = 'none';
+                    }
+                });
+        }
     }
-
+    // Calcula el nuevo adeudo y el cambio en base al monto ingresado
     function actualizarSaldoDespuesPago() {
-        const adeudoActual = parseFloat(document.getElementById('adeudo_actual').value) || 0;
-        const montoPagar = parseFloat(document.getElementById('monto_pagar').value) || 0;
+        const monto = parseFloat(document.getElementById('monto_pagar').value) || 0;
+        const adeudo = parseFloat(document.getElementById('adeudo_actual').value) || 0;
+        const nuevoSaldo = adeudo - monto;
+        const cambio = monto > adeudo ? monto - adeudo : 0;
 
-        let saldo = adeudoActual - montoPagar;
-        if (saldo < 0) saldo = 0;
-
-        let cambio = montoPagar > adeudoActual ? montoPagar - adeudoActual : 0;
-
-        document.getElementById('saldo_despues_pago').value = saldo.toFixed(2);
+        document.getElementById('saldo_despues_pago').value = nuevoSaldo >= 0 ? nuevoSaldo.toFixed(2) : '0.00';
         document.getElementById('cambio_pago').value = cambio.toFixed(2);
     }
-
-    function cargarVentasConAdeudo(cliente_id) {
-        if (!cliente_id) return;
-
-        fetch(`<?= PUBLIC_PATH ?>pagos/ventas_cliente/${cliente_id}`)
-            .then(response => response.json())
-            .then(ventas => {
-                const tablaBody = document.getElementById('tabla_ventas_body');
-                tablaBody.innerHTML = '';
-
-                if (!ventas.length) {
-                    document.getElementById('ventas_con_adeudo').style.display = 'none';
-                    return;
-                }
-
-                ventas.forEach(venta => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${venta.folio}</td>
-                        <td>$${parseFloat(venta.total).toFixed(2)}</td>
-                        <td>$${parseFloat(venta.por_pagar).toFixed(2)}</td>
-                        <td>
-                            <input type="number" name="ventas_a_pagar[${venta.id}]" min="0" max="${venta.por_pagar}" step="0.01" class="form-control" />
-                        </td>
-                    `;
-                    tablaBody.appendChild(tr);
-                });
-
-                document.getElementById('ventas_con_adeudo').style.display = 'block';
-            });
-    }
-
+    // Eventos que actualizan los campos dinámicos
     document.getElementById('cliente_id').addEventListener('change', actualizarCreditoDisponible);
     document.getElementById('monto_pagar').addEventListener('input', actualizarSaldoDespuesPago);
 </script>
