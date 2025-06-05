@@ -126,7 +126,7 @@ class PagosController extends AppController
 
                 $venta = (new Ventas())->find_first("clientes_id =".$cliente_id." AND por_pagar > 0 ORDER BY created_at DESC");
 
-                $pago_item_data = [
+                $pagoitem_data = [
                     'pago_id' => $pago->id,
                     'venta_id' => $venta->id,
                     'antes' => $venta->por_pagar,
@@ -135,10 +135,10 @@ class PagosController extends AppController
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
-                $pago_item = new Pagositems($pago_item_data);
+                $pagoitem = new Pagositems($pagoitem_data);
 
-                if (!$pago_item->save()) {
-                    $errors = $pago_item->get_messages();
+                if (!$pagoitem->save()) {
+                    $errors = $pagoitem->get_messages();
                     error_log("Errores al guardar pago_item: " . print_r($errors, true));
                     throw new Exception("Error al registrar el detalle del pago: " . implode(', ', $errors));
                 }
