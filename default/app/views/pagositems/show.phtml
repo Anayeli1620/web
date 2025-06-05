@@ -1,6 +1,6 @@
 <?php View::template("plantilla"); ?>
 
-<h1>Pago Item: <?= $pago_item->id ?></h1>
+<h1>Pago Item: <?= $pagoitem->id ?></h1>
 
 <div class="container">
     <div class="row">
@@ -8,10 +8,10 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Pago ID: <?= $pago_item->pago_id ?></h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Venta ID: <?= $pago_item->venta_id ?></h6>
+                    <h5 class="card-title">Pago ID: <?= $pagoitem->pago_id ?></h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Venta ID: <?= $pagoitem->venta_id ?></h6>
 
-                    <img src="<?= PUBLIC_PATH ?>img/pagos_items/<?= $pago_item->id ?>.jpg" width="250px" >
+                    <img src="<?= PUBLIC_PATH ?>img/pagositems/<?= $pagoitem->id ?>.jpg" width="250px" >
 
                 </div>
             </div>
@@ -30,15 +30,15 @@
                 <tbody>
                 <tr>
                     <td><strong>Antes del Pago:</strong></td>
-                    <td>$<?= number_format($pago_item->antes, 2) ?></td>
+                    <td>$<?= number_format($pagoitem->antes, 2) ?></td>
                 </tr>
                 <tr>
                     <td><strong>Monto Pagado:</strong></td>
-                    <td>$<?= number_format($pago_item->monto_pagado, 2) ?></td>
+                    <td>$<?= number_format($pagoitem->monto_pagado, 2) ?></td>
                 </tr>
                 <tr>
                     <td><strong>Adeudo Pendiente:</strong></td>
-                    <td>$<?= number_format($pago_item->adeudo, 2) ?></td>
+                    <td>$<?= number_format($pagoitem->adeudo, 2) ?></td>
                 </tr>
                 </tbody>
             </table>
@@ -73,7 +73,7 @@
             labels: ['Pago', 'Adeudo'], // Etiquetas para las barras
             datasets: [{
                 label: 'Cantidad',
-                data: [<?= $pago_item->monto_pagado ?>, <?= $pago_item->adeudo ?>], // Datos del monto pagado y adeudo
+                data: [<?= $pagoitem->monto_pagado ?>, <?= $pagoitem->adeudo ?>], // Datos del monto pagado y adeudo
                 backgroundColor: ['#28a745', '#dc3545'], // Colores para las barras (verde para el pago, rojo para el adeudo)
                 borderColor: ['#28a745', '#dc3545'],
                 borderWidth: 1
@@ -96,7 +96,7 @@
         data: {
             labels: ['Antes', 'Monto Pagado', 'Adeudo'], // Etiquetas del gráfico de dona
             datasets: [{
-                data: [<?= $pago_item->antes ?>, <?= $pago_item->monto_pagado ?>, <?= $pago_item->adeudo ?>], // Datos de la transacción
+                data: [<?= $pagoitem->antes ?>, <?= $pagoitem->monto_pagado ?>, <?= $pagoitem->adeudo ?>], // Datos de la transacción
                 backgroundColor: ['#f39c12', '#1abc9c', '#e74c3c'], // Colores para cada segmento
                 borderColor: ['#f39c12', '#1abc9c', '#e74c3c'],
                 borderWidth: 1

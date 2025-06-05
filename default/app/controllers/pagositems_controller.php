@@ -23,7 +23,7 @@ class PagositemsController extends AppController
             LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
         ", "conditions: pagositems.id = {$id}");
 
-        if (!$this->pago_item) {
+        if (!$this->pagoitem) {
             Flash::error('Pago no encontrado');
             return Redirect::to('pagositems/index');
         }
@@ -31,8 +31,8 @@ class PagositemsController extends AppController
 
 
         // Obtener los detalles de pago y venta relacionados
-        $this->pago = $this->pago_item->pago;  // Relación con el pago
-        $this->venta = $this->pago_item->venta;  // Relación con la venta
+        $this->pago = $this->pagoitem->pago;  // Relación con el pago
+        $this->venta = $this->pagoitem->venta;  // Relación con la venta
     }
 
     public function registrar()
@@ -85,7 +85,7 @@ class PagositemsController extends AppController
             }
 
             // Crear el pagos_items
-            $pago_item = new Pagositems([
+            $pagoitem = new Pagositems([
                 'venta_id' => $venta_id,
                 'pago_id' => $pago_id,
                 'antes' => $cliente->adeudo,
@@ -95,9 +95,9 @@ class PagositemsController extends AppController
             ]);
 
             // Actualizar adeudo del cliente
-            $cliente->adeudo = $pago_item->adeudo;
+            $cliente->adeudo = $pagoitem->adeudo;
 
-            if ($pago_item->create() && $cliente->update()) {
+            if ($pagoitem->create() && $cliente->update()) {
                 Flash::valid("¡Pago registrado correctamente!");
                 return Redirect::to('pagositems/index');
             }
