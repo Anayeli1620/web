@@ -139,7 +139,7 @@ class PagosController extends AppController
 
                 if (!$pagoitem->save()) {
                     $errors = $pagoitem->get_messages();
-                    error_log("Errores al guardar pago_item: " . print_r($errors, true));
+                    error_log("Errores al guardar pagoitem: " . print_r($errors, true));
                     throw new Exception("Error al registrar el detalle del pago: " . implode(', ', $errors));
                 }
 

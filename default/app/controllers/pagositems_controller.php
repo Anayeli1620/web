@@ -10,7 +10,7 @@ class PagositemsController extends AppController
 
     public function show($id)
     {
-        $this->pago_item = (new Pagositems())->find_first("columns:
+        $this->pagoitem = (new Pagositems())->find_first("columns:
             pagositems.*,
             ventas.total as venta_total,
             clientes.nombre as cliente_nombre,
@@ -23,7 +23,7 @@ class PagositemsController extends AppController
             LEFT JOIN metodos_pago ON pagos.metodo_pago_id = metodos_pago.id
         ", "conditions: pagositems.id = {$id}");
 
-        if (!$this->pagoitem) {
+        if (!$this->pagositems) {
             Flash::error('Pago no encontrado');
             return Redirect::to('pagositems/index');
         }

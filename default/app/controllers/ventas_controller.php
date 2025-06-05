@@ -362,14 +362,14 @@ class VentasController extends AppController
         }
 
         // Aquí creamos el registro en pagos_items (o tabla equivalente)
-        $pagoItem = new PagosItems();
-        $pagoItem->venta_id = $venta->id;
-        $pagoItem->cliente_id = $venta->clientes_id;
-        $pagoItem->monto_pagado = 0; // 0 si es crédito, o total si pago completo
-        $pagoItem->saldo_pendiente = $venta->total; // saldo inicial
-        $pagoItem->fecha_pago = date('Y-m-d H:i:s');
+        $pagoitem = new Pagositems();
+        $pagoitem->venta_id = $venta->id;
+        $pagoitem->cliente_id = $venta->clientes_id;
+        $pagoitem->monto_pagado = 0; // 0 si es crédito, o total si pago completo
+        $pagoitem->saldo_pendiente = $venta->total; // saldo inicial
+        $pagoitem->fecha_pago = date('Y-m-d H:i:s');
 
-        if (!$pagoItem->save()) {
+        if (!$pagoitem->save()) {
             Flash::error('No se pudo crear el registro de pago inicial.');
             return;
         }
