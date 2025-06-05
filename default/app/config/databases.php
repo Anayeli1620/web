@@ -1,3 +1,5 @@
+
+
 <?php
 /**
  * KumbiaPHP Web Framework
@@ -32,6 +34,7 @@ return [
         'type'     => 'mysql',
 
         'charset'  => 'utf8',
+        'port'     => '25060',
 
     ],
 ];
@@ -44,3 +47,6 @@ return [
     'dsn' => 'temp/data.sq3',
     'pdo' => 'On',
 ] */
+
+
+
