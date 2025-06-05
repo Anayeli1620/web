@@ -28,13 +28,10 @@ class PagositemsController extends AppController
             return Redirect::to('pagositems/index');
         }
 
-
-
         // Obtener los detalles de pago y venta relacionados
         $this->pago = $this->pagoitem->pago;  // Relación con el pago
         $this->venta = $this->pagoitem->venta;  // Relación con la venta
     }
-
     public function registrar()
     {
         // Obtener todas las ventas con información del cliente (incluyendo adeudo)
@@ -126,7 +123,6 @@ class PagositemsController extends AppController
         ]);
         return false;
     }
-
     // En el modelo PagosItems.php
     public function before_create() {
         $this->antes = (float)$this->antes;
